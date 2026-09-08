@@ -47,18 +47,22 @@ Repasse ao usuário as três listas. Item em "pulado" precisa de decisão dele: 
 
 O instalador não mexe em MCP. Abra `mcp/README.md` e siga a opção A (extensão Claude in Chrome, preferida no Claude Code) ou a opção B (`chrome-devtools-mcp` via npx, portátil). Pergunte ao usuário qual ele quer.
 
-### Passo 3b — RTK (opcional, só se o usuário pedir)
+### Passo 4 — RTK (obrigatório)
 
-`tools/rtk.md` tem a instalação. **Não rode `rtk init -g` por conta própria**: ele escreve um hook global no `~/.claude/settings.json`, o que afeta todas as sessões do usuário.
+RTK faz parte do kit, não é extra. Sem ele o devkit trabalha via Bash (regra de auto mode) pagando o preço cheio de cada saída de comando. Siga `tools/rtk.md`: instalar o binário, garantir `ripgrep` no PATH e rodar `rtk init -g`.
 
-### Passo 4 — Verificar
+Antes de rodar `rtk init -g`, **diga ao usuário o que o comando faz**: escreve um hook `PreToolUse` global no `~/.claude/settings.json`, valendo para todas as sessões dele, não só para este projeto. Rode em seguida — a etapa não é opcional —, mas ele precisa saber o que mudou na config. O hook é global mesmo em instalação só de projeto; se o usuário recusar essa escrita, pare e reporte a instalação como incompleta em vez de seguir em silêncio.
+
+### Passo 5 — Verificar
 
 ```bash
 ls ~/.claude/skills ~/.claude/agents        # bash
+rtk --version && rtk init --show            # binário instalado e hook ligado
 ```
 
 ```powershell
 Get-ChildItem "$HOME\.claude\skills","$HOME\.claude\agents"   # powershell
+rtk --version; rtk init --show
 ```
 
 Depois disso, reinicie a sessão do harness para ele carregar skills e agents novos. Confirme que `/manager` aparece e que os agents `scout`, `developer` e `reviewer` estão listados.
@@ -68,6 +72,7 @@ Depois disso, reinicie a sessão do harness para ele carregar skills e agents no
 - Não copiar skill sem `SKILL.md` (pasta vazia = conteúdo pendente).
 - Não editar skills que já existiam no destino.
 - Não registrar MCP sem perguntar.
+- Não tratar o RTK como extra: pular o passo 4 deixa a instalação incompleta.
 - Não commitar nada no repositório do usuário como parte da instalação.
 
 ---
@@ -87,7 +92,7 @@ Depois disso, reinicie a sessão do harness para ele carregar skills e agents no
 
 `ponytail-review` e `caveman` são **cópias verbatim do upstream**, em inglês, com a origem anotada no fim de cada arquivo. Não foram traduzidas de propósito: editar o corpo delas quebra a fidelidade e dificulta atualizar. O caveman responde no idioma em que você escreve, então em pt-BR ele responde em pt-BR.
 
-**RTK não é skill.** É um binário Rust que comprime a saída dos comandos de shell antes de o agent ler. Fica em `tools/rtk.md`, com instalação própria — o instalador do devkit não o instala.
+**RTK não é skill.** É um binário Rust que comprime a saída dos comandos de shell antes de o agent ler. Fica em `tools/rtk.md`, com instalação própria: o `install.sh`/`install.ps1` não o instala, mas o passo 4 do README é obrigatório e cobre isso à mão.
 
 #### Cuidado ao ligar o caveman
 
@@ -120,7 +125,7 @@ Cada um existe em `.sh` e `.ps1`.
 
 | Ferramenta | Onde | Instala junto? |
 |---|---|---|
-| `rtk` | `tools/rtk.md` | Não. Binário separado + hook que escreve no `settings.json` do usuário. Precisa do ok dele. |
+| `rtk` | `tools/rtk.md` | Não pelo instalador — é o passo 4 do README, obrigatório e feito à mão. Binário separado + hook que escreve no `settings.json` do usuário; avise antes de rodar `rtk init -g`. |
 
 ---
 
@@ -190,7 +195,7 @@ claude-devkit/
 ├── agents/<nome>.md
 ├── scripts/               ← new-branch, checks, open-pr (.sh e .ps1)
 ├── mcp/                   ← config e instruções do Chrome
-├── tools/                 ← ferramentas externas (rtk), instaladas à parte
+├── tools/                 ← ferramentas externas (rtk), instaladas à parte (passo obrigatório)
 └── templates/spec.md
 ```
 

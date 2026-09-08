@@ -1,5 +1,7 @@
 # RTK — redução de tokens de saída do shell
 
+**Instalação obrigatória** — passo 4 do README, não um extra.
+
 **RTK não é uma skill.** É um binário Rust (`rtk`) que fica entre o agent e o shell e comprime a saída dos comandos antes de o modelo ler: `ls`, `cat`, `grep`, `git status/diff/log`, `npm test`, `pytest`, `cargo test`, `docker ps` e ~100 outros. Por isso ele mora em `tools/`, não em `skills/` — não há `SKILL.md` para copiar.
 
 Fonte: https://github.com/rtk-ai/rtk (Apache-2.0)
@@ -35,6 +37,6 @@ Depois disso, **reiniciar o Claude Code**.
 
 ## Cuidados
 
-- `rtk init -g` **escreve no `~/.claude/settings.json`** do usuário (hook global). Ação que afeta todas as sessões — o instalador do devkit não faz isso; confirme com o usuário antes.
+- `rtk init -g` **escreve no `~/.claude/settings.json`** do usuário (hook global). Afeta todas as sessões dele, não só este projeto. O `install.sh`/`install.ps1` não roda isso — quem instala o kit roda à mão, avisando o usuário do que muda na config antes. Se ele recusar, pare e reporte a instalação como incompleta.
 - Colisão de nome no crates.io: existe outro pacote `rtk` (Rust Type Kit). Se `rtk gain` falhar, foi o pacote errado — use `cargo install --git https://github.com/rtk-ai/rtk`.
 - Não quebra o prompt cache: o filtro roda uma vez por comando e o resultado vai pro histórico normalmente.
