@@ -17,6 +17,7 @@ while [ $# -gt 0 ]; do
 done
 
 installed=(); skipped=(); pending=()
+STAMP=$(date +%Y%m%d%H%M%S)
 
 copy() { # origem destino rotulo
   if [ -e "$2" ] && [ "$FORCE" -eq 0 ]; then
@@ -24,7 +25,14 @@ copy() { # origem destino rotulo
   fi
   if [ "$DRY" -eq 1 ]; then installed+=("$3 [dry-run]"); return; fi
   mkdir -p "$(dirname "$2")"
-  [ -e "$2" ] && cp -r "$2" "$2.bak.$(date +%Y%m%d%H%M%S)"
+  if [ -e "$2" ]; then
+    # Backup fora de skills/ e agents/: pasta .bak ali dentro e carregada como skill de verdade.
+    backup="$DEST/.devkit-backups/$STAMP/${2#$DEST/}"
+    mkdir -p "$(dirname "$backup")"
+    cp -r "$2" "$backup"
+    # Remover antes de copiar: cp -r com destino existente aninha em vez de sobrescrever.
+    rm -rf "$2"
+  fi
   cp -r "$1" "$2"
   installed+=("$3")
 }
@@ -46,3 +54,4 @@ echo "== pendente ==";  printf '  %s\n' "${pending[@]:-(nada)}"
 echo
 echo "MCP do Chrome nao e instalado por este script. Veja mcp/README.md e escolha a opcao A ou B."
 echo "Destino: $DEST"
+[ -d "$DEST/.devkit-backups/$STAMP" ] && echo "Backup do que foi sobrescrito: $DEST/.devkit-backups/$STAMP"

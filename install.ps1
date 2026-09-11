@@ -4,6 +4,7 @@ param([switch]$Force, [switch]$DryRun, [string]$Dest = "$HOME\.claude")
 
 $src = $PSScriptRoot
 $installed = @(); $skipped = @(); $pending = @()
+$stamp = Get-Date -Format "yyyyMMddHHmmss"
 
 function Copy-Item-Safe {
     param([string]$From, [string]$To, [string]$Label)
@@ -12,8 +13,13 @@ function Copy-Item-Safe {
     $parent = Split-Path $To -Parent
     if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Force $parent | Out-Null }
     if (Test-Path $To) {
-        $stamp = Get-Date -Format "yyyyMMddHHmmss"
-        Copy-Item $To "$To.bak.$stamp" -Recurse -Force
+        # Backup fora de skills/ e agents/: pasta .bak ali dentro e carregada como skill de verdade.
+        $rel = $To.Substring($Dest.Length).Trim([IO.Path]::DirectorySeparatorChar)
+        $backupPath = Join-Path (Join-Path $Dest ".devkit-backups") (Join-Path $script:stamp $rel)
+        New-Item -ItemType Directory -Force (Split-Path $backupPath -Parent) | Out-Null
+        Copy-Item $To $backupPath -Recurse -Force
+        # Remover antes de copiar: Copy-Item com destino existente aninha em vez de sobrescrever.
+        Remove-Item $To -Recurse -Force
     }
     Copy-Item $From $To -Recurse -Force
     $script:installed += $Label
@@ -34,3 +40,6 @@ Write-Output "== pendente =="; if ($pending)   { $pending   | ForEach-Object { "
 Write-Output ""
 Write-Output "MCP do Chrome nao e instalado por este script. Veja mcp\README.md e escolha a opcao A ou B."
 Write-Output "Destino: $Dest"
+if (Test-Path (Join-Path $Dest ".devkit-backups\$stamp")) {
+    Write-Output "Backup do que foi sobrescrito: $Dest\.devkit-backups\$stamp"
+}

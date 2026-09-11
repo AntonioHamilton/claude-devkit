@@ -213,7 +213,7 @@ rm -rf ~/.claude/skills/{manager,memoria,ponytail-review,caveman}
 rm -f ~/.claude/agents/{manager,scout,developer,reviewer}.md
 ```
 
-`grill-me`, `doubt` e `simplify` podem já ser do usuário — confirme com ele antes de apagar. Apagar a skill `memoria` **não** apaga `~/.claude/memory/`: o conteúdo é do usuário e só sai se ele pedir. Arquivos `.bak.<timestamp>` gerados por `--force` ficam ao lado do original.
+`grill-me`, `doubt` e `simplify` podem já ser do usuário — confirme com ele antes de apagar. Apagar a skill `memoria` **não** apaga `~/.claude/memory/`: o conteúdo é do usuário e só sai se ele pedir. O que o `--force` sobrescreve vai para `~/.claude/.devkit-backups/<timestamp>/`, fora de `skills/` e `agents/` — backup dentro de `skills/` é carregado pelo harness como skill de verdade.
 
 ---
 
