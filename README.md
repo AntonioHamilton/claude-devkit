@@ -53,16 +53,36 @@ RTK faz parte do kit, não é extra. Sem ele o devkit trabalha via Bash (regra d
 
 Antes de rodar `rtk init -g`, **diga ao usuário o que o comando faz**: escreve um hook `PreToolUse` global no `~/.claude/settings.json`, valendo para todas as sessões dele, não só para este projeto. Rode em seguida — a etapa não é opcional —, mas ele precisa saber o que mudou na config. O hook é global mesmo em instalação só de projeto; se o usuário recusar essa escrita, pare e reporte a instalação como incompleta em vez de seguir em silêncio.
 
-### Passo 5 — Verificar
+### Passo 5 — Effort da sessão principal
+
+Cada subagent declara `model` e `effort` no próprio frontmatter — não há nada a instalar para eles. A **spec**, porém, é escrita pelo manager rodando como sessão principal, e ali frontmatter não vale: quem manda é o `~/.claude/settings.json`.
+
+Antes de escrever, **leia o `settings.json` atual, mostre ao usuário o que vai mudar e peça ok**. Faça *merge* — nunca sobrescreva o arquivo, ele já tem o hook do RTK e provavelmente outras chaves.
+
+```json
+{
+  "modelSettings": {
+    "claude-sonnet-5": { "effort": "high" }
+  }
+}
+```
+
+Só essa entrada. **Não escreva `model` nem `effortLevel`**: esse arquivo vale para todas as sessões do usuário, em todo projeto, e o kit não decide o modelo do trabalho dele fora do devkit. Quem escolhe o modelo continua sendo ele, no `/model`.
+
+Os agents usam ID fixo (`claude-sonnet-5`, `claude-haiku-4-5`), não alias — quando sair geração nova de modelo, revise os quatro arquivos em `agents/` e esta entrada.
+
+### Passo 6 — Verificar
 
 ```bash
 ls ~/.claude/skills ~/.claude/agents        # bash
 rtk --version && rtk init --show            # binário instalado e hook ligado
+grep -A3 modelSettings ~/.claude/settings.json   # effort da sessão principal
 ```
 
 ```powershell
 Get-ChildItem "$HOME\.claude\skills","$HOME\.claude\agents"   # powershell
 rtk --version; rtk init --show
+Select-String modelSettings "$HOME\.claude\settings.json"
 ```
 
 Depois disso, reinicie a sessão do harness para ele carregar skills e agents novos. Confirme que `/manager` aparece e que os agents `scout`, `developer` e `reviewer` estão listados.
@@ -86,7 +106,8 @@ Depois disso, reinicie a sessão do harness para ele carregar skills e agents no
 | `grill-me` | interna | Entrevista o usuário até fechar toda decisão aberta do plano. Etapa 5 do manager. |
 | `doubt` | externa | Revisão adversarial antes de decisão difícil de reverter. Etapas 7 e 9 do manager. |
 | `simplify` | externa (alvo adaptado) | Simplifica a **spec e a explicação dada ao usuário**, não o código aprovado. Etapa 10. |
-| `manager` | interna | Dispara o pipeline de 12 etapas nesta sessão. Ver `agents/manager.md`. |
+| `manager` | interna | Dispara o pipeline de 13 etapas nesta sessão. Ver `agents/manager.md`. |
+| `memoria` | interna (desenho inspirado em [hanfang/claude-memory-skill](https://github.com/hanfang/claude-memory-skill)) | Memória persistente em `~/.claude/memory/` do que muda **como** o Claude trabalha: preferência de código, decisão de spec, lição de pipeline. Lida na etapa 3, escrita na etapa 13. |
 | `ponytail-review` | externa ([DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)) | Revisão que só caça excesso de engenharia: o que dá pra deletar. Complementar ao `reviewer`. Etapa 11. |
 | `caveman` | externa ([JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman)) | Modo de resposta ultracomprimido — corta token de saída sem perder substância técnica. Opcional, ligado pelo usuário. |
 
@@ -131,22 +152,23 @@ Cada um existe em `.sh` e `.ps1`.
 
 ## O pipeline do manager
 
-Doze etapas, na ordem. O detalhe canônico está em `agents/manager.md`; este resumo serve para o usuário saber onde está.
+Treze etapas, na ordem. O detalhe canônico está em `agents/manager.md`; este resumo serve para o usuário saber onde está.
 
 | # | Etapa | O que acontece |
 |---|---|---|
 | 1 | Intake | Reformula o pedido e o que fica de fora. Confirma. |
 | 2 | Branch | Cria branch a partir da `main`. |
-| 3 | Pre-recon | Manager olha o projeto e decide quantos scouts (1–2) e quais facetas. |
+| 3 | Pre-recon | Carrega a `memoria`, olha o projeto e decide quantos scouts (1–2) e quais facetas. |
 | 4 | **Recon** | Dispara os scouts. **Obrigatório, nunca pulado.** |
 | 5 | Grill | `grill-me` sobre a implementação. Uma pergunta por vez. |
-| 6 | Spec | Escreve a spec (SDD) em `specs/<slug>.md` a partir de `templates/spec.md`. |
+| 6 | Spec | Escreve a spec (SDD) em `specs/<slug>.md` a partir de `templates/spec.md`, com o passo humano de conferência por estágio. |
 | 7 | Spec Skeptic | `doubt` sobre a spec. |
 | 8 | Approval Gate | Resumo + spec, e `AskUserQuestion` com a opção recomendada primeiro. Sem ok, não começa. |
 | 9 | Stage loop | Por estágio: `developer` → `doubt` → commit. |
 | 10 | Gate 1 | `checks` + `simplify`. |
 | 11 | Gate 2 | `reviewer` (correção) + `ponytail-review` (excesso) sobre o diff da branch. |
-| 12 | Ship | Pergunta se abre PR. |
+| 12 | **Verificação humana** | Entrega o roteiro de conferência e **espera**. Reprovou, volta pro stage loop. |
+| 13 | Ship | Pergunta se abre PR e captura o aprendizado na `memoria`. |
 
 Invariantes que não podem ser quebradas:
 
@@ -154,6 +176,7 @@ Invariantes que não podem ser quebradas:
 - Nenhuma linha de código antes do Approval Gate.
 - Máximo 2 scouts, sempre em paralelo, facetas ortogonais.
 - Um developer por vez no mesmo código.
+- Nada de PR antes da verificação humana ser respondida.
 - PR e push só com ok explícito.
 
 ---
@@ -168,6 +191,15 @@ Chamar o reviewer direto, sem pipeline:
 
 > "roda o reviewer no diff da branch" · "usa o reviewer no PR 42"
 
+Memória:
+
+```
+/memoria salvar <observação>   # registra o que muda como o Claude deve trabalhar
+/memoria buscar <termo>        # consulta por grep
+/memoria ver                   # mostra o estado da memória
+/memoria esquecer <tema>       # remove, com confirmação
+```
+
 Rodar uma skill isolada: `/grill-me`, `/doubt`, `/simplify`.
 
 ---
@@ -177,11 +209,11 @@ Rodar uma skill isolada: `/grill-me`, `/doubt`, `/simplify`.
 Apagar do destino as skills e agents deste kit:
 
 ```bash
-rm -rf ~/.claude/skills/{manager,ponytail-review,caveman}
+rm -rf ~/.claude/skills/{manager,memoria,ponytail-review,caveman}
 rm -f ~/.claude/agents/{manager,scout,developer,reviewer}.md
 ```
 
-`grill-me`, `doubt` e `simplify` podem já ser do usuário — confirme com ele antes de apagar. Arquivos `.bak.<timestamp>` gerados por `--force` ficam ao lado do original.
+`grill-me`, `doubt` e `simplify` podem já ser do usuário — confirme com ele antes de apagar. Apagar a skill `memoria` **não** apaga `~/.claude/memory/`: o conteúdo é do usuário e só sai se ele pedir. Arquivos `.bak.<timestamp>` gerados por `--force` ficam ao lado do original.
 
 ---
 

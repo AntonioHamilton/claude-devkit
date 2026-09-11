@@ -44,6 +44,7 @@ Cada estágio precisa ser implementável sozinho, por alguém que só leu esta s
 - **Critérios de aceite:**
   - [ ] <verificável: comando que roda, comportamento observável>
   - [ ] <...>
+- **Como você confere:** <o passo humano — o que abrir, o que fazer, o que precisa aparecer na tela para o estágio estar de acordo com o pedido. Se não der para escrever isto, o estágio está vago; conserte o estágio.>
 
 ### Estágio 2 — <nome>
 
