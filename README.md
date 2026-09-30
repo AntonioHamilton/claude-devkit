@@ -35,7 +35,7 @@ macOS / Linux / Git Bash:
 ./install.sh
 ```
 
-Opções: `--dry-run` (mostra o que faria, não copia), `--force` (sobrescreve, guardando `.bak` do que existia), `--dest <caminho>` / `-Dest <caminho>` (destino alternativo).
+Opções: `--dry-run` (mostra o que faria, não copia), `--force` (sobrescreve, guardando `.bak` do que existia), `--no-hooks` / `-NoHooks` (não instala os hooks do Jev, ver Passo 5b), `--dest <caminho>` / `-Dest <caminho>` (destino alternativo).
 
 O instalador **nunca sobrescreve sem `--force`**. Ele imprime três listas: instalado, pulado (já existia), pendente (skill sem `SKILL.md`).
 
@@ -70,6 +70,15 @@ Antes de escrever, **leia o `settings.json` atual, mostre ao usuário o que vai 
 Só essa entrada. **Não escreva `model` nem `effortLevel`**: esse arquivo vale para todas as sessões do usuário, em todo projeto, e o kit não decide o modelo do trabalho dele fora do devkit. Quem escolhe o modelo continua sendo ele, no `/model`.
 
 Os agents usam ID fixo (`claude-sonnet-5`, `claude-haiku-4-5`), não alias — quando sair geração nova de modelo, revise os quatro arquivos em `agents/` e esta entrada.
+
+### Passo 5b — Hooks do Jev (já feito pelo instalador)
+
+O instalador copia `hooks/jev-hooks.mjs` para `~/.claude/hooks/` e registra três hooks **globais** no `settings.json` (merge com backup em `.devkit-backups/`, nunca sobrescreve o arquivo): `UserPromptSubmit` (roteador de porte do pedido), `PreToolUse` em Bash (guarda de comando destrutivo, só pede confirmação) e `PostToolUse` em `WebFetch`/`jev-browser` (filtra blocos irrelevantes de saídas longas). Não precisam de agent: valem em toda sessão.
+
+- Só agem se `TYPESAFE_API_KEY` existir no ambiente. Sem key (ou sem rede, ou com erro), saem sem fazer nada e a sessão segue normal.
+- Com a key, enviam à TypeSafe: prompts, comandos Bash de aparência arriscada e texto de páginas lidas, com tokens e senhas mascarados. **Diga isso ao usuário** e ofereça `--no-hooks` / `-NoHooks` se ele não quiser.
+- `JEV_HOOKS=off` desliga tudo sem desinstalar. Remover: `node hooks/merge-settings.mjs ~/.claude/settings.json ~/.claude/hooks/jev-hooks.mjs --remove`.
+- Requer Node 22+; sem Node o instalador avisa e pula.
 
 ### Passo 6 — Verificar
 
@@ -140,7 +149,7 @@ Cada um existe em `.sh` e `.ps1`.
 
 ### MCP
 
-`chrome` — controle do navegador. Ver `mcp/README.md`.
+`chrome` — controle do navegador; `jev-browser` — leitura de páginas com o Jev. Ver `mcp/README.md`.
 
 ### Ferramentas externas
 
@@ -226,7 +235,8 @@ claude-devkit/
 ├── skills/<nome>/SKILL.md
 ├── agents/<nome>.md
 ├── scripts/               ← new-branch, checks, open-pr (.sh e .ps1)
-├── mcp/                   ← config e instruções do Chrome
+├── hooks/                 ← hooks do Jev (jev-hooks.mjs) + merge-settings.mjs
+├── mcp/                   ← config e instruções do Chrome e do jev-browser
 ├── tools/                 ← ferramentas externas (rtk), instaladas à parte (passo obrigatório)
 └── templates/spec.md
 ```

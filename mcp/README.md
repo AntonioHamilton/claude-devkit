@@ -25,6 +25,17 @@ Em outro harness, copie o bloco de `mcp-servers.json` para o arquivo de configur
 
 Requisitos: Node.js instalado e Chrome instalado. Confirme o nome do pacote antes de rodar em máquina nova — o instalador do devkit **não** instala essa opção automaticamente, só escreve/oferece a configuração.
 
+## jev-browser — navegação barata com o modelo Jev
+
+Servidor MCP que navega em páginas reais guiado pelo Jev (TypeSafe) e devolve o conteúdo já em texto, sem HTML bruto. Complementa as opções A e B, não substitui: serve para pesquisa e leitura de fontes, não para controlar a sessão logada do usuário.
+
+```
+claude mcp add jev-browser --scope user -- npx -y @jkudish/jev-browser
+```
+
+- Tool: `jev_navigate` (`task`, `start_url`, `max_steps`, `max_seconds`, `format`).
+- Requisitos: Node 22+ e a variável de ambiente `TYPESAFE_API_KEY` (o servidor herda do ambiente; não grave a chave em arquivo versionado).
+
 ## Regras de uso (valem para as duas opções)
 
 - Nunca disparar `alert`, `confirm` ou `prompt`: diálogo modal trava a sessão inteira do navegador.
