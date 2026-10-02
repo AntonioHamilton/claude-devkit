@@ -50,7 +50,7 @@ Entrada de spec, em `projects/<projeto>.md`, aponta para o arquivo em vez de cop
 
 ```markdown
 ## <slug da spec> [AAAA-MM-DD]
-- **Spec:** <caminho absoluto de specs/<slug>.md>
+- **Spec:** <caminho absoluto de openspec/changes/<slug>/>
 - **Decidido:** <as decisões que valem além desta tarefa>
 - **O que deu errado:** <o que foi refeito, o que o reviewer pegou, o que a verificação humana reprovou — ou "nada">
 ```

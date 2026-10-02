@@ -48,13 +48,13 @@ Despache os scouts em paralelo, cada um com: a tarefa do usuário + sua faceta +
 Consolide num parágrafo: o que existe, o que conflita, o que falta, quais riscos. **Conflitos entre os dois relatórios viram pergunta no Grill**, não são resolvidos por você no chute.
 
 ### 5. Grill
-Rode a skill `grill-me` sobre a implementação pedida. Uma pergunta por vez, cada uma com sua recomendação. O que o recon já respondeu, não pergunte.
-Encerre quando não sobrar decisão aberta que mude o que vai ser construído.
+Rode a skill `grill-with-docs` sobre a implementação pedida (ela é o `grill-me` mais registro de ADR). Uma pergunta por vez, cada uma com sua recomendação. O que o recon ou `docs/adr/` já respondeu, não pergunte.
+Decisão difícil de reverter (arquitetura, modelagem de banco, design de API, segurança) é a prioridade do grill e vira ADR em `docs/adr/`, com ok do usuário. Encerre quando não sobrar decisão aberta que mude o que vai ser construído.
 
 ### 6. Spec (SDD)
-Escreva a spec em `specs/<slug>.md` usando `templates/spec.md`. A spec é o contrato do developer: cada estágio precisa ser implementável sem adivinhação e ter critério de aceite verificável.
+Escreva a spec com o **OpenSpec** (`tools/openspec.md`): se o projeto não tem `openspec/`, peça ok para `openspec init`. A change fica em `openspec/changes/<slug>/` (`proposal.md`, `specs/`, `design.md`, `tasks.md`); cada tarefa de `tasks.md` é um estágio. A spec é o contrato do developer: cada estágio precisa ser implementável sem adivinhação e ter critério de aceite verificável. Decisões duradouras ficam nos ADRs e a spec só os referencia.
 
-Cada estágio também precisa do campo **Como você confere** — o passo humano que prova que aquele estágio corresponde ao que foi pedido. Se você não consegue escrever esse passo, o estágio está vago: conserte o estágio agora, não depois. Esses campos são o que você vai consolidar na etapa 12.
+Cada estágio também precisa do campo **Como você confere** — o passo humano que prova que aquele estágio corresponde ao que foi pedido. Se você não consegue escrever esse passo, o estágio está vago: conserte o estágio agora, não depois. Esse campo entra na tarefa do estágio em `tasks.md`. Esses campos são o que você vai consolidar na etapa 12.
 
 ### 7. Spec Skeptic pass
 Rode a skill `doubt` com a decisão declarada: "essa spec é a coisa certa a construir, do jeito que está escrita". Corrija a spec conforme o veredito. Se o veredito for "perguntar ao usuário", pergunte antes do gate.
@@ -81,6 +81,8 @@ Para cada estágio da spec, em ordem:
 ### 11. Gate 2 — review
 Despache o **reviewer** com a spec + o diff completo da branch. Veredito `reprovado` ou achado `CONFIRMADO` volta pro stage loop com o achado como estágio novo. Achado `PLAUSÍVEL` você leva ao usuário para decidir.
 
+Antes, rode a skill `goal`: ela confere a implementação contra a spec e o objetivo da proposta. Veredito `parcial` ou `não atingiu` volta pro stage loop.
+
 Em paralelo, rode a skill `ponytail-review` sobre o mesmo diff. Ela caça só excesso de engenharia (`delete:`, `stdlib:`, `native:`, `yagni:`, `shrink:`) e é complementar ao reviewer, que caça correção. Achado de ponytail vira estágio de corte só se o usuário aprovar — cortar código funcionando não é decisão sua.
 
 ### 12. Verificação humana
@@ -88,16 +90,18 @@ Checks e reviewer provam que o código faz o que a spec diz. Esta etapa prova ou
 
 Consolide os campos **Como você confere** de todos os estágios num roteiro numerado, na ordem em que o usuário deve executar. Cada passo diz o que abrir, o que fazer e o que precisa aparecer. Entregue o roteiro e **espere** — use `AskUserQuestion` com três saídas:
 
-- **Passou** — segue para o Ship.
+- **Passou** — roda o loop de regressão (abaixo) e segue para o Ship.
 - **Não passou** — o que falhou vira estágio novo e volta para o stage loop (etapa 9), mesmo tratamento de achado `CONFIRMADO` do reviewer.
 - **Não vou testar agora** — segue, e o resumo do Ship registra, em uma linha, que a verificação humana não foi feita.
+
+**Loop de regressão.** Passando a verificação humana, ofereça `/loop` rodando `scripts/checks.*` em intervalo (ex.: `/loop 5m scripts/checks.sh`) enquanto o usuário continua mexendo, para pegar teste quebrado cedo. Só liga se o usuário topar, e para quando ele disser ou ao abrir o PR.
 
 Não reescreva o roteiro para caber no que você acha que funciona: ele sai dos campos da spec que o usuário aprovou no gate.
 
 ### 13. Ship
 Mostre o resumo final (o que foi feito, o que ficou fora, o que o reviewer apontou, se a verificação humana passou) e pergunte ao usuário, com `AskUserQuestion`, se quer abrir PR dessa branch. Se sim, use `scripts/open-pr.*` ou `gh pr create`. **Nunca abra PR nem dê push sem o ok explícito.**
 
-Antes de encerrar, capture o aprendizado com a skill `memoria` (`/memoria salvar`): a entrada da spec em `projects/<projeto>.md` (slug, caminho, o que foi decidido, o que deu errado) e qualquer preferência de trabalho que o usuário tenha revelado durante a tarefa. Só o que muda como você deve trabalhar da próxima vez — o que aconteceu não entra.
+Se a change do OpenSpec foi concluída, arquive-a (`archive`) com ok do usuário. Antes de encerrar, capture o aprendizado com a skill `memoria` (`/memoria salvar`): a entrada da spec em `projects/<projeto>.md` (slug, caminho, o que foi decidido, o que deu errado) e qualquer preferência de trabalho que o usuário tenha revelado durante a tarefa. Só o que muda como você deve trabalhar da próxima vez — o que aconteceu não entra.
 
 ## Relato de estado
 

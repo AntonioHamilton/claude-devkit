@@ -112,7 +112,9 @@ Depois disso, reinicie a sessão do harness para ele carregar skills e agents no
 
 | Skill | Origem | Papel |
 |---|---|---|
-| `grill-me` | interna | Entrevista o usuário até fechar toda decisão aberta do plano. Etapa 5 do manager. |
+| `grill-me` | interna | Entrevista o usuário até fechar toda decisão aberta do plano. Versão sem registro de `grill-with-docs`. |
+| `grill-with-docs` | interna (ideia de [mattpocock/skills](https://github.com/mattpocock/skills/blob/main/docs/engineering/grill-with-docs.md)) | `grill-me` que também grava ADRs em `docs/adr/` para decisões difíceis de reverter. Etapa 5 do manager. |
+| `goal` | interna | Confere a implementação contra a spec e o objetivo. Etapa 11. |
 | `doubt` | externa | Revisão adversarial antes de decisão difícil de reverter. Etapas 7 e 9 do manager. |
 | `simplify` | externa (alvo adaptado) | Simplifica a **spec e a explicação dada ao usuário**, não o código aprovado. Etapa 10. |
 | `manager` | interna | Dispara o pipeline de 13 etapas nesta sessão. Ver `agents/manager.md`. |
@@ -155,6 +157,7 @@ Cada um existe em `.sh` e `.ps1`.
 
 | Ferramenta | Onde | Instala junto? |
 |---|---|---|
+| `openspec` | `tools/openspec.md` | Não — `npm install -g @fission-ai/openspec@latest`, e `openspec init` por projeto, com ok do usuário. Etapa 6 do manager. |
 | `rtk` | `tools/rtk.md` | Não pelo instalador — é o passo 4 do README, obrigatório e feito à mão. Binário separado + hook que escreve no `settings.json` do usuário; avise antes de rodar `rtk init -g`. |
 
 ---
@@ -169,14 +172,14 @@ Treze etapas, na ordem. O detalhe canônico está em `agents/manager.md`; este r
 | 2 | Branch | Cria branch a partir da `main`. |
 | 3 | Pre-recon | Carrega a `memoria`, olha o projeto e decide quantos scouts (1–2) e quais facetas. |
 | 4 | **Recon** | Dispara os scouts. **Obrigatório, nunca pulado.** |
-| 5 | Grill | `grill-me` sobre a implementação. Uma pergunta por vez. |
-| 6 | Spec | Escreve a spec (SDD) em `specs/<slug>.md` a partir de `templates/spec.md`, com o passo humano de conferência por estágio. |
+| 5 | Grill | `grill-with-docs` sobre a implementação; decisão difícil de reverter vira ADR em `docs/adr/`. Uma pergunta por vez. |
+| 6 | Spec | Escreve a spec (SDD) com OpenSpec em `openspec/changes/<slug>/`, com o passo humano de conferência por estágio. |
 | 7 | Spec Skeptic | `doubt` sobre a spec. |
 | 8 | Approval Gate | Resumo + spec, e `AskUserQuestion` com a opção recomendada primeiro. Sem ok, não começa. |
 | 9 | Stage loop | Por estágio: `developer` → `doubt` → commit. |
 | 10 | Gate 1 | `checks` + `simplify`. |
-| 11 | Gate 2 | `reviewer` (correção) + `ponytail-review` (excesso) sobre o diff da branch. |
-| 12 | **Verificação humana** | Entrega o roteiro de conferência e **espera**. Reprovou, volta pro stage loop. |
+| 11 | Gate 2 | `goal` (spec e objetivo atendidos) + `reviewer` (correção) + `ponytail-review` (excesso) sobre o diff da branch. |
+| 12 | **Verificação humana** | Entrega o roteiro de conferência e **espera**; se passou, oferece `/loop` de checks. Reprovou, volta pro stage loop. |
 | 13 | Ship | Pergunta se abre PR e captura o aprendizado na `memoria`. |
 
 Invariantes que não podem ser quebradas:
@@ -209,7 +212,7 @@ Memória:
 /memoria esquecer <tema>       # remove, com confirmação
 ```
 
-Rodar uma skill isolada: `/grill-me`, `/doubt`, `/simplify`.
+Rodar uma skill isolada: `/grill-me`, `/grill-with-docs`, `/doubt`, `/simplify`.
 
 ---
 
@@ -218,7 +221,7 @@ Rodar uma skill isolada: `/grill-me`, `/doubt`, `/simplify`.
 Apagar do destino as skills e agents deste kit:
 
 ```bash
-rm -rf ~/.claude/skills/{manager,memoria,ponytail-review,caveman}
+rm -rf ~/.claude/skills/{manager,memoria,ponytail-review,caveman,grill-with-docs}
 rm -f ~/.claude/agents/{manager,scout,developer,reviewer}.md
 ```
 
@@ -237,8 +240,7 @@ claude-devkit/
 ├── scripts/               ← new-branch, checks, open-pr (.sh e .ps1)
 ├── hooks/                 ← hooks do Jev (jev-hooks.mjs) + merge-settings.mjs
 ├── mcp/                   ← config e instruções do Chrome e do jev-browser
-├── tools/                 ← ferramentas externas (rtk), instaladas à parte (passo obrigatório)
-└── templates/spec.md
+├── tools/                 ← ferramentas externas (rtk, openspec), instaladas à parte
 ```
 
 Adicionar coisa nova: crie a pasta/arquivo no lugar certo. O instalador varre os diretórios — não precisa registrar em lista nenhuma.
