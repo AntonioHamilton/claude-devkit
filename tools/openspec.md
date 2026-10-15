@@ -1,6 +1,6 @@
 # OpenSpec
 
-Framework de spec-driven development. O manager o usa na etapa 6 no lugar do antigo `templates/spec.md`. Site: https://openspec.dev/
+Framework de spec-driven development. O manager o usa na etapa 3 (modo completo) no lugar do antigo `templates/spec.md`. Site: https://openspec.dev/
 
 ## Instalar
 
@@ -34,7 +34,7 @@ Fluxo do OpenSpec: explore, propose, apply, verify, archive. Os nomes exatos dos
 
 ## Como o manager usa
 
-- Etapa 6: gera a change (propose) em vez de escrever `specs/<slug>.md`. O campo **Como você confere** de cada estágio vai em `tasks.md`.
-- Etapa 11: skill `goal` roda `openspec validate`/verify.
-- Etapa 13: ao fim, `archive`.
+- Etapa 3: gera a change (propose) em vez de escrever `specs/<slug>.md`. O campo **Como você confere** de cada estágio vai em `tasks.md`.
+- Etapa 6: skill `goal` roda `openspec validate`/verify.
+- Etapa 7: ao fim, `archive`.
 - Projeto sem `openspec/` e sem ok do usuário para o `init`: pare e pergunte; não volte para o template antigo em silêncio.

@@ -1,0 +1,279 @@
+---
+name: pr-bump
+description: Merge Dependabot / dependency-bot bump PRs quickly and safely. Use only for bot-authored dependency-only PRs (Dependabot, gem/npm/pip bumps); anything touching application code, migrations, Dockerfiles, or non-dependency config goes to pr-audit instead.
+---
+
+# PR Bump
+
+Use this workflow to clear routine Dependabot dependency bump PRs without
+breaking the app or accidentally shipping unrelated local changes.
+
+The common case is a set of Bundler/Ruby gem update PRs that only touch
+`Gemfile.lock`. Prefer a single local consolidated lockfile update over merging
+each Dependabot branch one by one.
+
+Batch, never serialize: several bump PRs are one unit of work. Consolidate
+every one of them, resolve each dependency to the newest compatible version
+(which may be newer than any of the PRs propose), verify the whole set with a
+single test/CI pass, and fix whatever that exposes in subsequent commits.
+Merging and testing one bump at a time is exactly the pipeline churn this
+skill exists to avoid.
+
+## Fast Path Summary
+
+1. Inspect local git state and open PRs.
+2. Confirm every PR is a dependency-only bump.
+3. Consolidate all bumps locally with the package manager, updating each
+   dependency to the latest resolvable version rather than the PR's exact target.
+4. Run local CI-equivalent checks once over the whole consolidated set —
+   never per-bump.
+5. Commit only intended files with `Closes #N` references.
+6. Push, confirm PRs closed, and wait for GitHub CI.
+7. Deploy only after CI passes when the user asked for deploy.
+
+## Preconditions and Guardrails
+
+- Never commit unrelated local changes. If `git status` shows files like
+  `.ai-jail`, inspect them and leave them unstaged unless the user explicitly
+  asks to include them.
+- Before committing, inspect:
+  - `git status --short --branch`
+  - `git diff --stat`
+  - `git diff -- <intended files>`
+  - `git log --oneline -10`
+- If a deploy command builds from the working tree, temporarily stash unrelated
+  local files that would enter the build context, then restore them after
+  deploy. This avoids shipping local scratch config.
+- Do not run broad auto-formatters as a fix for dependency PRs. If lint fails
+  on pre-existing style, prefer a tiny config or targeted fix. If an
+  autoformatter changes dozens of files, revert it and narrow the fix.
+- If any PR changes application code, migrations, Docker files, or config that
+  is not clearly dependency metadata, stop and do a normal PR review instead.
+- Close the loop on every PR you do NOT consolidate. "Defer", "escalate to
+  `pr-audit`", or "decline" is a disposition, not a resting state: before you
+  finish, leave that PR in a clean, self-explaining state on the forge — post a
+  comment stating why it was not merged (major bump, failing build, non-metadata
+  changes, suspicious source) and then either **close it** or **open a tracking
+  issue** for the deferred work and link it. Never leave a rejected or deferred
+  bump silently open with a red build. Mentioning it only in your final summary
+  is not resolving it — a reader of the PR list must see the decision there. A
+  deferred major bump handed to `pr-audit` must carry that concrete disposition,
+  not just a note.
+- Supply-chain floor: before running the update, verify each bumped
+  dependency resolves from the default public registry (rubygems.org, npm,
+  pypi) with the expected name, version, and checksums. Treat git/path
+  sources, renamed or republished packages, typosquat-adjacent names, or new
+  install-time/build hooks appearing in the resolution as stop-and-audit:
+  hand the PR to `pr-audit`. `bundler-audit` only flags known advisories —
+  a well-formed lockfile bump to a trojaned gem passes every file-shape
+  check, which is exactly the case this floor exists for.
+
+## Step 1: Inspect Open PRs
+
+Use GitHub CLI:
+
+```bash
+gh pr list --state open \
+  --json number,title,headRefName,baseRefName,author,labels,mergeStateStatus,isDraft,updatedAt,url
+```
+
+For each candidate PR:
+
+```bash
+gh pr diff <number> --name-only
+gh pr view <number> --json commits,files,statusCheckRollup,mergeable,mergeStateStatus
+```
+
+Safe routine PR signals:
+
+- author is `app/dependabot` or `dependabot[bot]`
+- label includes `dependencies`
+- title is a simple bump, e.g. `Bump bootsnap from 1.24.5 to 1.24.6`
+- changed files are dependency metadata only, commonly `Gemfile.lock`
+- bump type is patch/minor unless the project has already accepted the major
+  and tests are strong enough
+
+Branch CI may be failing because Dependabot updated a partial/stale lockfile
+and Bundler frozen mode rejects it. Inspect the logs, but don't assume the bump
+is bad until a consolidated local update fails.
+
+## Step 2: Consolidate with the Package Manager
+
+For Bundler/Ruby gems, update all open bump gems together on the current default
+branch. Do **not** merely apply the exact version from the Dependabot PR. Treat
+the PR as a signal that the dependency needs attention, then let Bundler resolve
+the latest compatible version under the existing `Gemfile` constraints:
+
+```bash
+bundle update <gem_one> <gem_two> ...
+bundle check
+```
+
+This resolves lockfile conflicts and refreshes transitive dependency checksums
+correctly. It may update small transitive dependencies, such as `msgpack` for
+`bootsnap`; include those in the final summary.
+
+The goal is "latest safe/resolvable", not "the PR's proposed version". This
+reduces churn from repeated tiny follow-up bumps. For Bundler, `bundle update
+<gem>` normally means the newest version the dependency graph and existing
+Gemfile constraints allow.
+
+Do not widen `Gemfile` constraints, jump to a new major version, or make
+application changes just to chase an upstream latest unless the user explicitly
+asks. If the true upstream latest requires changing constraints, stop and report
+that the latest compatible version was applied and what would be required to go
+further.
+
+Do not merge each Dependabot branch if several lockfile PRs are open and likely
+to conflict. A single consolidated commit with `Closes #N` references is faster
+and produces a clean lockfile.
+
+## Step 3: Verify Locally
+
+Run the project’s CI-equivalent checks from its instructions. For this Rails
+project, the tested command set is:
+
+```bash
+bundle check
+RAILS_ENV=test \
+  ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY=0123456789abcdef0123456789abcdef \
+  ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=abcdef0123456789abcdef0123456789 \
+  ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=0123456789abcdef0123456789abcdef \
+  bin/rails db:test:prepare test
+bin/rubocop -f github
+bin/brakeman --no-pager
+bin/bundler-audit
+```
+
+Run independent checks in parallel when possible, but make sure `bundle check`
+or installation succeeds first.
+
+If tests fail:
+
+1. Reproduce the failing subset locally.
+2. Determine whether the failure is caused by the dependency change, CI env, or
+   pre-existing test fragility.
+3. Make only minimal robust fixes.
+4. Re-run the focused test and the full CI-equivalent command set.
+5. Fix forward. Land the consolidated bump, then repair commits on top — do
+   not un-bundle the batch back into per-PR merges. If you need to isolate a
+   culprit dependency to diagnose, do it in a scratch worktree, then express
+   the outcome inside the consolidated change as a version pin, a constraint
+   tweak, or a code fix.
+
+Known CI-hardening patterns from this project:
+
+- Tests that instantiate API clients must set fake API keys before client
+  construction, then restore the original `ENV` value in teardown.
+- GitHub Actions test jobs need deterministic Active Record encryption env
+  vars (the sequential hex values above are deterministic non-production
+  test keys).
+- If Docker deploy builds from working tree, stash local `.ai-jail` changes so
+  the image matches committed code.
+
+## Step 4: Commit and Push
+
+Detect the default branch first and push to that — never assume `master`:
+
+```bash
+gh repo view --json defaultBranchRef --jq .defaultBranchRef.name
+```
+
+`Closes #N` only closes the PR when the commit lands on the default branch;
+a hard-coded `master` push on a `main`-default repo strands the PRs open and
+points the CI watch at a branch that never received the push.
+
+Stage only intended files, usually just `Gemfile.lock`:
+
+```bash
+git add Gemfile.lock
+git diff --cached --stat
+git diff --cached
+git commit -m "Bump <gem_one> and <gem_two>" -m "Closes #<pr1>. Closes #<pr2>."
+git push origin <default-branch>
+```
+
+If you made tiny CI/test hardening fixes, stage those explicitly in a separate
+commit with a specific message. Keep dependency and test-infra changes easy to
+audit.
+
+After push:
+
+```bash
+gh pr list --state open --json number,title,url
+gh run list --branch <default-branch> --limit 5 --json databaseId,status,conclusion,headSha,displayTitle,event,createdAt,url
+gh run watch <push-ci-run-id> --exit-status
+```
+
+Do not deploy until the relevant push CI run passes, unless the user explicitly
+accepts that risk.
+
+## Step 5: Deploy When Requested
+
+Use the project’s deploy command. For this Rails project:
+
+```bash
+bin/deploy
+```
+
+If unrelated local changes would be included in the Docker build context,
+temporarily stash them and restore afterward. In zsh, do not use a variable
+named `status` because it is read-only. Use `deploy_rc`:
+
+```bash
+stash_created=0
+if ! git diff --quiet -- .ai-jail; then
+  git stash push -m opencode-temp-pr-bump-deploy -- .ai-jail
+  stash_created=1
+fi
+
+bin/deploy
+deploy_rc=$?
+
+if [ "$stash_created" = 1 ]; then
+  git stash pop
+fi
+
+exit "$deploy_rc"
+```
+
+A successful `bin/deploy` should build, push the `latest` image, restart remote
+Compose services, and show the app container healthy plus worker/fetcher up.
+
+## Final Response Checklist
+
+Report concisely:
+
+- PR numbers closed
+- direct and transitive dependency versions changed, noting when the final
+  version is newer than Dependabot's proposed PR version
+- local checks run and pass/fail result
+- GitHub CI result
+- deploy result and service health
+- PRs intentionally not consolidated, and why (suspicious source, major
+  bump, failing tests, non-dependency files) — and the concrete state each was
+  left in: commented + closed, or commented + tracked in issue #N. Every
+  not-consolidated PR must already be in one of those states before you report,
+  never just described here while still open.
+- any remaining local uncommitted changes intentionally left alone
+
+Example final note:
+
+```md
+Done.
+
+- Closed PRs #29 and #30.
+- Updated bootsnap 1.24.5 -> 1.24.7 (newer than PR target 1.24.6), image_processing 2.0.1 -> 2.0.3, msgpack 1.8.0 -> 1.8.1.
+- Local tests, RuboCop, Brakeman, and bundler-audit passed.
+- GitHub CI passed.
+- Deployed successfully; app is healthy, worker and mail fetcher are up.
+- Deferred #31 (rmcp 2.0 major bump): commented + closed on the PR, tracking
+  issue #47.
+- `.ai-jail` still has uncommitted local changes and was left untouched.
+```
+
+
+## Origem
+
+Cópia verbatim de https://github.com/akitaonrails/my-skills (`pr-bump/`, commit 2ae1eb8).
+Não editar aqui — para atualizar, puxar do upstream.

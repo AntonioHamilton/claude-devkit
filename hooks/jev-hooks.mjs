@@ -120,10 +120,16 @@ async function filtroSaida(e) {
 
 // ---------- roteador: UserPromptSubmit ----------
 
-const DICAS = {
-  simples: '[jev] Pedido simples: responda direto e curto, sem explorar o repositório nem abrir subagents.',
-  grande: '[jev] Pedido grande (várias partes ou arquivos): planeje antes de editar e divida em etapas; considere /manager.',
-};
+const MODELO_POR_PORTE = { simples: 'haiku', normal: 'sonnet', grande: 'sonnet' };
+
+const dica = (porte, modelo) =>
+  `[jev-router] Porte ${porte}. Modelo sugerido para o que for delegado: ${modelo}. ` +
+  (porte === 'simples'
+    ? 'Responda direto e curto, sem explorar o repositório nem abrir subagents. '
+    : porte === 'grande'
+      ? 'Aplique ai-effort: planeje antes de editar e considere /manager. '
+      : '') +
+  'Ao delegar com outro modelo, avise "modelo mudou para X" e não pergunte.';
 
 async function roteador(e) {
   const prompt = (e.prompt ?? '').trim();
@@ -140,11 +146,20 @@ async function roteador(e) {
           grande: 'Feature nova, refatoração ampla, mudança em vários arquivos ou módulos, ou trabalho com várias etapas',
         },
       },
+      dificil: {
+        type: 'noul',
+        instructions: 'Este pedido exige raciocínio especialmente difícil ou decisão de alto risco (arquitetura, segurança, modelagem de dados, bug misterioso)?',
+        criteria: {
+          true: 'Decisão difícil de reverter, arquitetura, segurança, modelagem de banco ou bug que resistiu a tentativas',
+          false: 'Trabalho de rotina, mesmo que extenso',
+        },
+      },
     },
   );
   const { choice, confidence } = a.porte;
-  if (choice === 'normal' || confidence < 0.8) return;
-  saida({ hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: DICAS[choice] } });
+  if (confidence < 0.8) return;
+  const modelo = a.dificil.noul >= 0.85 ? 'opus' : MODELO_POR_PORTE[choice];
+  saida({ hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: dica(choice, modelo) } });
 }
 
 // ---------- guarda-bash: PreToolUse em Bash ----------

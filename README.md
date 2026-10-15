@@ -35,7 +35,7 @@ macOS / Linux / Git Bash:
 ./install.sh
 ```
 
-Opções: `--dry-run` (mostra o que faria, não copia), `--force` (sobrescreve, guardando `.bak` do que existia), `--no-hooks` / `-NoHooks` (não instala os hooks do Jev, ver Passo 5b), `--dest <caminho>` / `-Dest <caminho>` (destino alternativo).
+Opções: `--dry-run` (mostra o que faria, não copia), `--force` (sobrescreve, guardando `.bak` do que existia), `--no-hooks` / `-NoHooks` (não instala os hooks do Jev, ver Passo 5b), `--no-rules` / `-NoRules` (não importa as regras de ouro, ver Passo 5c), `--link-agents` / `-LinkAgents` (liga as skills em Codex, OpenCode, Kimi e `~/.agents`, ver "Outros agentes"), `--dest <caminho>` / `-Dest <caminho>` (destino alternativo).
 
 O instalador **nunca sobrescreve sem `--force`**. Ele imprime três listas: instalado, pulado (já existia), pendente (skill sem `SKILL.md`).
 
@@ -52,6 +52,14 @@ O instalador não mexe em MCP. Abra `mcp/README.md` e siga a opção A (extensã
 RTK faz parte do kit, não é extra. Sem ele o devkit trabalha via Bash (regra de auto mode) pagando o preço cheio de cada saída de comando. Siga `tools/rtk.md`: instalar o binário, garantir `ripgrep` no PATH e rodar `rtk init -g`.
 
 Antes de rodar `rtk init -g`, **diga ao usuário o que o comando faz**: escreve um hook `PreToolUse` global no `~/.claude/settings.json`, valendo para todas as sessões dele, não só para este projeto. Rode em seguida — a etapa não é opcional —, mas ele precisa saber o que mudou na config. O hook é global mesmo em instalação só de projeto; se o usuário recusar essa escrita, pare e reporte a instalação como incompleta em vez de seguir em silêncio.
+
+### Passo 4b — Vault da memória (pergunte)
+
+Pergunte ao usuário o caminho do vault do Obsidian onde a memória compartilhada vai ficar (`<vault>/_memoria/devkit/`). Grave em `~/.claude/memory/config.md` (`vault: <caminho>`), confirmando que a pasta existe. Se ele não quiser vault, a memória fica só em `~/.claude/memory/`.
+
+### Passo 4c — OpenUI (opcional)
+
+Pergunte se o usuário quer o OpenUI no projeto atual. Se sim, siga `tools/openui.md`.
 
 ### Passo 5 — Effort da sessão principal
 
@@ -73,12 +81,18 @@ Os agents usam ID fixo (`claude-sonnet-5`, `claude-haiku-4-5`), não alias — q
 
 ### Passo 5b — Hooks do Jev (já feito pelo instalador)
 
-O instalador copia `hooks/jev-hooks.mjs` para `~/.claude/hooks/` e registra três hooks **globais** no `settings.json` (merge com backup em `.devkit-backups/`, nunca sobrescreve o arquivo): `UserPromptSubmit` (roteador de porte do pedido), `PreToolUse` em Bash (guarda de comando destrutivo, só pede confirmação) e `PostToolUse` em `WebFetch`/`jev-browser` (filtra blocos irrelevantes de saídas longas). Não precisam de agent: valem em toda sessão.
+O instalador copia `hooks/jev-hooks.mjs` e `hooks/session-start.mjs` para `~/.claude/hooks/` e registra os hooks **globais** no `settings.json` (merge com backup em `.devkit-backups/`, nunca sobrescreve o arquivo): `UserPromptSubmit` (roteador de porte do pedido), `PreToolUse` em Bash (guarda de comando destrutivo, só pede confirmação) e `PostToolUse` em `WebFetch`/`jev-browser` (filtra blocos irrelevantes de saídas longas). Não precisam de agent: valem em toda sessão.
 
 - Só agem se `TYPESAFE_API_KEY` existir no ambiente. Sem key (ou sem rede, ou com erro), saem sem fazer nada e a sessão segue normal.
 - Com a key, enviam à TypeSafe: prompts, comandos Bash de aparência arriscada e texto de páginas lidas, com tokens e senhas mascarados. **Diga isso ao usuário** e ofereça `--no-hooks` / `-NoHooks` se ele não quiser.
 - `JEV_HOOKS=off` desliga tudo sem desinstalar. Remover: `node hooks/merge-settings.mjs ~/.claude/settings.json ~/.claude/hooks/jev-hooks.mjs --remove`.
 - Requer Node 22+; sem Node o instalador avisa e pula.
+
+**Banner de início de sessão** (`session-start.mjs`): ao abrir (`startup` e `clear`), mostra em fonte grande e colorida (âmbar) dois passos, cada um com sua descrição: **escolha uma tarefa limitada** e **escreva as restrições**. Os outros dois (revise a mudança, guarde a lição) vão só como lembrete ao agente. Não usa rede nem key. `DEVKIT_BANNER=off` desliga; `DEVKIT_BANNER_COLOR=off` tira a cor.
+
+### Passo 5c — Regras de ouro (já feito pelo instalador)
+
+O instalador copia `rules/devkit-rules.md` para `~/.claude/devkit-rules.md` e acrescenta uma linha `@devkit-rules.md` ao fim do `~/.claude/CLAUDE.md` (backup em `.devkit-backups/`). **Diga ao usuário**: as regras valem em toda sessão dele (esforço proporcional, qualquer agent a qualquer hora, roteamento de modelo, `AGENTS.md`, memória, baixo consumo). Para remover, apague essa linha.
 
 ### Passo 6 — Verificar
 
@@ -94,7 +108,7 @@ rtk --version; rtk init --show
 Select-String modelSettings "$HOME\.claude\settings.json"
 ```
 
-Depois disso, reinicie a sessão do harness para ele carregar skills e agents novos. Confirme que `/manager` aparece e que os agents `scout`, `developer` e `reviewer` estão listados.
+Depois disso, reinicie a sessão do harness para ele carregar skills e agents novos. Confirme que `/manager` aparece e que os agents `scout`, `developer`, `reviewer` e `tester` estão listados. Se existir `~/.claude/agents/manager.md` de uma versão antiga, apague: o manager agora é só a skill.
 
 ### O que NÃO fazer na instalação
 
@@ -113,14 +127,34 @@ Depois disso, reinicie a sessão do harness para ele carregar skills e agents no
 | Skill | Origem | Papel |
 |---|---|---|
 | `grill-me` | interna | Entrevista o usuário até fechar toda decisão aberta do plano. Versão sem registro de `grill-with-docs`. |
-| `grill-with-docs` | interna (ideia de [mattpocock/skills](https://github.com/mattpocock/skills/blob/main/docs/engineering/grill-with-docs.md)) | `grill-me` que também grava ADRs em `docs/adr/` para decisões difíceis de reverter. Etapa 5 do manager. |
-| `goal` | interna | Confere a implementação contra a spec e o objetivo. Etapa 11. |
-| `doubt` | externa | Revisão adversarial antes de decisão difícil de reverter. Etapas 7 e 9 do manager. |
-| `simplify` | externa (alvo adaptado) | Simplifica a **spec e a explicação dada ao usuário**, não o código aprovado. Etapa 10. |
-| `manager` | interna | Dispara o pipeline de 13 etapas nesta sessão. Ver `agents/manager.md`. |
-| `memoria` | interna (desenho inspirado em [hanfang/claude-memory-skill](https://github.com/hanfang/claude-memory-skill)) | Memória persistente em `~/.claude/memory/` do que muda **como** o Claude trabalha: preferência de código, decisão de spec, lição de pipeline. Lida na etapa 3, escrita na etapa 13. |
-| `ponytail-review` | externa ([DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)) | Revisão que só caça excesso de engenharia: o que dá pra deletar. Complementar ao `reviewer`. Etapa 11. |
+| `grill-with-docs` | interna (ideia de [mattpocock/skills](https://github.com/mattpocock/skills/blob/main/docs/engineering/grill-with-docs.md)) | `grill-me` que também grava ADRs em `docs/adr/` para decisões difíceis de reverter. Etapa 3 do manager (modo completo). |
+| `goal` | interna | Confere a implementação contra a spec e o objetivo. Etapa 6. |
+| `doubt` | externa | Revisão adversarial antes de decisão difícil de reverter. Etapa 3 do manager (modo completo). |
+| `simplify` | externa (alvo adaptado) | Simplifica a **spec e a explicação dada ao usuário**, não o código aprovado. Uso avulso. |
+| `manager` | interna | A própria sessão vira o manager (nunca subagent) e conduz o pipeline de 7 etapas, em modo enxuto ou completo. |
+| `ai-memory` | interna (desenho inspirado em [hanfang/claude-memory-skill](https://github.com/hanfang/claude-memory-skill)) | Memória persistente (no vault do Obsidian, com fallback em `~/.claude/memory/`; `/ai-memory consolidar` reorganiza e arquiva o lixo) do que muda **como** o Claude trabalha: preferência de código, decisão de spec, lição de pipeline. Lida na etapa 1, escrita na etapa 7. |
+| `ai-effort` | interna | A IA decide sozinha o esforço (direto, enxuto ou completo) e o nível de teste. Vale mesmo sem `/manager`. |
+| `jev-router` | interna | Regra de ouro: escolhe haiku, sonnet ou opus por tarefa delegada, com fallback, sem perguntar, avisando "modelo mudou para X". Com `TYPESAFE_API_KEY`, o hook do Jev injeta a sugestão. |
+| `ai-stack` | interna | Projeto novo: 4 perguntas-chave (usuários, dados, segurança, plataforma) e sugestão de linguagem, banco e tipo de app, com referências de UI. |
+| `ponytail-review` | externa ([DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)) | Revisão que só caça excesso de engenharia: o que dá pra deletar. Complementar ao `reviewer`. Só a pedido do usuário. |
 | `caveman` | externa ([JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman)) | Modo de resposta ultracomprimido — corta token de saída sem perder substância técnica. Opcional, ligado pelo usuário. |
+
+| `reflect` | externa ([akitaonrails/my-skills](https://github.com/akitaonrails/my-skills)) | Revê o trabalho recente, acha padrões repetidos e sugere skills, regras ou configs novas. É o "guarde a lição" em forma de skill. |
+| `verification-planning` | externa (my-skills) | Antes de implementar, planeja a evidência que prova que funciona. |
+| `agent-browser` | externa (my-skills) | Automação de navegador por CLI (`npm i -g agent-browser && agent-browser install`). Serve ao `tester`. O texto diz "prefira agent-browser a qualquer navegador embutido": isso passa por cima do `jev-browser`; ligue só se quiser. |
+| `clonedeps` | externa (my-skills) | Clona o código das dependências para ler como a biblioteca funciona por dentro. Bom para estudo. |
+| `humanizer` | externa (my-skills; de blader/humanizer, MIT) | Tira o tom de texto gerado por IA. |
+| `pr-bump` | externa (my-skills) | Funde PRs de bump do Dependabot com segurança. Só PR de bot, só dependência. |
+| `improve-codebase-architecture` | externa (my-skills) | Acha oportunidades de aprofundar módulos, guiado por `CONTEXT.md` e `docs/adr/`. |
+| `worktrees` | externa (my-skills) | Git worktrees como pistas isoladas para trabalho arriscado ou paralelo. |
+| `release` | externa (my-skills) | Deriva a versão do changelog e publica a release seguindo a estratégia do repo. |
+| `security-audit` | externa (my-skills) | Modelo de ameaça e auditoria de vulnerabilidades, com checklists e script de superfície. Nível completo do `ai-effort` quando houver login ou pagamento. |
+| `deepwork` | externa (my-skills) | Orquestração cara para trabalho grande e de alto risco. Só por pedido explícito: gasta muito token. |
+| `loop-engineering` | externa (my-skills) | Entrevista e monitor de loop com verificação. |
+| `codemap` | externa (my-skills) | Mapa hierárquico de um repositório desconhecido. Caro: só por pedido explícito. |
+| `fact-check` | externa (my-skills) | Checagem adversarial de artigos e ensaios: verifica cada afirmação em fontes primárias, com subagentes baratos em CLI headless. Dispara outros CLIs de agente (o padrão da config é grok, com passada final em claude) e pode gastar API paga: leia `skills/fact-check/references/harness-setup.md` antes de usar. |
+
+As 14 skills acima são **cópias verbatim** de `akitaonrails/my-skills` (commit `2ae1eb8`), em inglês, com a origem no fim de cada arquivo. `clonedeps`, `codemap`, `worktrees`, `deepwork` e `loop-engineering` são forks do oh-my-opencode-slim e foram escritas para o runtime do OpenCode (agentes como oracle/observer, callbacks, pasta `.slim/`): no Claude Code funcionam como roteiro de trabalho, não como runtime. O repositório de origem não declara licença; só a `humanizer` traz a dela (MIT). Confira antes de redistribuir o devkit.
 
 `ponytail-review` e `caveman` são **cópias verbatim do upstream**, em inglês, com a origem anotada no fim de cada arquivo. Não foram traduzidas de propósito: editar o corpo delas quebra a fidelidade e dificulta atualizar. O caveman responde no idioma em que você escreve, então em pt-BR ele responde em pt-BR.
 
@@ -132,12 +166,14 @@ O `caveman` vale pra sessão inteira até o usuário dizer "stop caveman". Os ag
 
 ### Agents
 
+O manager **não é agent**: é a skill `manager`, que roda na sua sessão. Os agents abaixo são os subagents que ela (ou qualquer sessão, a qualquer hora) pode chamar. Modelos: scout `haiku`, developer/tester/reviewer `sonnet`; a regra `jev-router` ajusta por tarefa.
+
 | Agent | Quem pode chamar | Permissão | Papel |
 |---|---|---|---|
-| `manager` | usuário | total | Conversa com o usuário e coordena todo o resto. Não escreve código. |
-| `scout` | **só o manager** | read-only | Reconhecimento de uma faceta do projeto. Máx. 2 por tarefa, em paralelo. |
-| `developer` | **só o manager** | escrita | Implementa **um estágio** da spec aprovada. Nada além do estágio. |
-| `reviewer` | manager **ou** usuário | read-only | Revisa o que foi feito contra a spec. Também revisa PR. |
+| `tester` | manager **ou** qualquer sessão | escrita (só testes e `AGENTS.md`) | Cria personas, testa como elas, registra achados e vira suíte de regressão no `AGENTS.md`. |
+| `scout` | qualquer sessão | read-only | Reconhecimento de uma faceta do projeto. Máx. 2 por tarefa, em paralelo. |
+| `developer` | qualquer sessão | escrita | Implementa **um estágio** da spec aprovada. Nada além do estágio. |
+| `reviewer` | qualquer sessão | read-only | Revisa o que foi feito contra a spec. Também revisa PR. |
 
 ### Scripts
 
@@ -158,34 +194,46 @@ Cada um existe em `.sh` e `.ps1`.
 | Ferramenta | Onde | Instala junto? |
 |---|---|---|
 | `openspec` | `tools/openspec.md` | Não — `npm install -g @fission-ai/openspec@latest`, e `openspec init` por projeto, com ok do usuário. Etapa 6 do manager. |
+| `openui` | `tools/openui.md` | Não — opcional, `npx @openuidev/cli@latest setup-agent` por projeto (escreve no `AGENTS.md`). Avise antes de rodar. |
 | `rtk` | `tools/rtk.md` | Não pelo instalador — é o passo 4 do README, obrigatório e feito à mão. Binário separado + hook que escreve no `settings.json` do usuário; avise antes de rodar `rtk init -g`. |
+
+---
+
+## Outros agentes (Codex, OpenCode, Kimi)
+
+O conhecimento do devkit é texto puro (`SKILL.md`, `AGENTS.md`, `rules/`). Uma pasta, todos os agentes: `--link-agents` / `-LinkAgents` cria links simbólicos por skill, apontando para `~/.claude/skills/<skill>`, em cada diretório que já existir:
+
+| Agente | Diretório de skills |
+|---|---|
+| Compartilhado | `~/.agents/skills` |
+| Codex | `~/.codex/skills` |
+| OpenCode | `~/.config/opencode/skills` |
+| Kimi | `~/.kimi-code/skills` |
+
+Edição em uma skill chega a todos. Link por skill, não da pasta inteira, porque esses diretórios guardam entradas que não são do devkit; o instalador nunca sobrescreve link ou pasta existente. No Windows, symlink exige modo desenvolvedor ou admin; sem isso o instalador pula a skill. Reinicie o agente para ele ler as skills novas.
+
+Fora do Claude Code: os **agents** (`scout`, `developer`, `reviewer`, `tester`) e os hooks são do Claude Code; a skill `manager` e as demais funcionam em qualquer harness que leia `SKILL.md`, usando os agents só se existirem. As regras de ouro: cole ou ligue `rules/devkit-rules.md` no `AGENTS.md` global do agente. Nos projetos, `AGENTS.md` é a fonte; o `CLAUDE.md` contém só `@AGENTS.md`.
 
 ---
 
 ## O pipeline do manager
 
-Treze etapas, na ordem. O detalhe canônico está em `agents/manager.md`; este resumo serve para o usuário saber onde está.
+Sete etapas, no modo **enxuto** (padrão) ou **completo** (dado real, auth, pagamento, migração, mudança difícil de reverter). A skill `ai-effort` escolhe o nível; tarefa simples nem passa pelo manager. O detalhe canônico está em `skills/manager/SKILL.md`.
 
-| # | Etapa | O que acontece |
-|---|---|---|
-| 1 | Intake | Reformula o pedido e o que fica de fora. Confirma. |
-| 2 | Branch | Cria branch a partir da `main`. |
-| 3 | Pre-recon | Carrega a `memoria`, olha o projeto e decide quantos scouts (1–2) e quais facetas. |
-| 4 | **Recon** | Dispara os scouts. **Obrigatório, nunca pulado.** |
-| 5 | Grill | `grill-with-docs` sobre a implementação; decisão difícil de reverter vira ADR em `docs/adr/`. Uma pergunta por vez. |
-| 6 | Spec | Escreve a spec (SDD) com OpenSpec em `openspec/changes/<slug>/`, com o passo humano de conferência por estágio. |
-| 7 | Spec Skeptic | `doubt` sobre a spec. |
-| 8 | Approval Gate | Resumo + spec, e `AskUserQuestion` com a opção recomendada primeiro. Sem ok, não começa. |
-| 9 | Stage loop | Por estágio: `developer` → `doubt` → commit. |
-| 10 | Gate 1 | `checks` + `simplify`. |
-| 11 | Gate 2 | `goal` (spec e objetivo atendidos) + `reviewer` (correção) + `ponytail-review` (excesso) sobre o diff da branch. |
-| 12 | **Verificação humana** | Entrega o roteiro de conferência e **espera**; se passou, oferece `/loop` de checks. Reprovou, volta pro stage loop. |
-| 13 | Ship | Pergunta se abre PR e captura o aprendizado na `memoria`. |
+| # | Etapa | Enxuto | Completo |
+|---|---|---|---|
+| 1 | Intake | Memória, `AGENTS.md` (cria se faltar), pedido reformulado | igual, mais `ai-stack` se for projeto novo |
+| 2 | Recon | `rg` na própria sessão (ou 1 scout) | 1 a 2 scouts em paralelo |
+| 3 | Plano | Checklist no chat | OpenSpec + grill só do difícil de reverter + `doubt` uma vez |
+| 4 | Aprovação | Uma pergunta: plano + testes de regressão | igual |
+| 5 | Implementação | A própria sessão | `developer` por estágio, commit por estágio |
+| 6 | Validação | checks, `tester` (se quis), `goal`, em loop de até 3 voltas, e verificação humana | mais `reviewer` |
+| 7 | Ship | PR com ok, `ai-memory salvar` | igual, arquiva a change |
 
 Invariantes que não podem ser quebradas:
 
-- Recon nunca é pulado, por mais simples que a tarefa pareça.
-- Nenhuma linha de código antes do Approval Gate.
+- Recon nunca é pulado (pode ser de 2 comandos).
+- Nenhuma linha de código antes da aprovação (etapa 4).
 - Máximo 2 scouts, sempre em paralelo, facetas ortogonais.
 - Um developer por vez no mesmo código.
 - Nada de PR antes da verificação humana ser respondida.
@@ -206,10 +254,10 @@ Chamar o reviewer direto, sem pipeline:
 Memória:
 
 ```
-/memoria salvar <observação>   # registra o que muda como o Claude deve trabalhar
-/memoria buscar <termo>        # consulta por grep
-/memoria ver                   # mostra o estado da memória
-/memoria esquecer <tema>       # remove, com confirmação
+/ai-memory salvar <observação>   # registra o que muda como o Claude deve trabalhar
+/ai-memory buscar <termo>        # consulta por grep
+/ai-memory ver                   # mostra o estado da memória
+/ai-memory esquecer <tema>       # remove, com confirmação
 ```
 
 Rodar uma skill isolada: `/grill-me`, `/grill-with-docs`, `/doubt`, `/simplify`.
@@ -221,11 +269,11 @@ Rodar uma skill isolada: `/grill-me`, `/grill-with-docs`, `/doubt`, `/simplify`.
 Apagar do destino as skills e agents deste kit:
 
 ```bash
-rm -rf ~/.claude/skills/{manager,memoria,ponytail-review,caveman,grill-with-docs}
-rm -f ~/.claude/agents/{manager,scout,developer,reviewer}.md
+rm -rf ~/.claude/skills/{manager,ai-effort,jev-router,ai-stack,ai-memory,ponytail-review,caveman,grill-with-docs,fact-check,reflect,verification-planning,agent-browser,clonedeps,humanizer,pr-bump,improve-codebase-architecture,worktrees,release,security-audit,deepwork,loop-engineering,codemap}
+rm -f ~/.claude/agents/{manager,scout,developer,reviewer,tester}.md ~/.claude/devkit-rules.md   # e a linha @devkit-rules.md do CLAUDE.md
 ```
 
-`grill-me`, `doubt` e `simplify` podem já ser do usuário — confirme com ele antes de apagar. Apagar a skill `memoria` **não** apaga `~/.claude/memory/`: o conteúdo é do usuário e só sai se ele pedir. O que o `--force` sobrescreve vai para `~/.claude/.devkit-backups/<timestamp>/`, fora de `skills/` e `agents/` — backup dentro de `skills/` é carregado pelo harness como skill de verdade.
+`grill-me`, `doubt` e `simplify` podem já ser do usuário — confirme com ele antes de apagar. Apagar a skill `ai-memory` **não** apaga `~/.claude/memory/`: o conteúdo é do usuário e só sai se ele pedir. O que o `--force` sobrescreve vai para `~/.claude/.devkit-backups/<timestamp>/`, fora de `skills/` e `agents/` — backup dentro de `skills/` é carregado pelo harness como skill de verdade.
 
 ---
 
@@ -237,8 +285,9 @@ claude-devkit/
 ├── install.sh / .ps1      ← instalador
 ├── skills/<nome>/SKILL.md
 ├── agents/<nome>.md
+├── rules/devkit-rules.md  ← regras de ouro, importadas pelo CLAUDE.md
 ├── scripts/               ← new-branch, checks, open-pr (.sh e .ps1)
-├── hooks/                 ← hooks do Jev (jev-hooks.mjs) + merge-settings.mjs
+├── hooks/                 ← banner de sessão (session-start.mjs), hooks do Jev (jev-hooks.mjs) + merge-settings.mjs
 ├── mcp/                   ← config e instruções do Chrome e do jev-browser
 ├── tools/                 ← ferramentas externas (rtk, openspec), instaladas à parte
 ```

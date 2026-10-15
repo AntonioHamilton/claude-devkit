@@ -1,23 +1,27 @@
 #!/usr/bin/env node
 // Registra (ou remove) os hooks do Jev no settings.json do Claude Code, sem tocar no resto.
-// Uso: node merge-settings.mjs <settings.json> <jev-hooks.mjs> [--dry-run] [--remove]
+// Uso: node merge-settings.mjs <settings.json> <jev-hooks.mjs> [--banner=<session-start.mjs>] [--dry-run] [--remove]
 // Idempotente: entradas anteriores do jev-hooks.mjs são trocadas, nunca duplicadas.
 import fs from 'node:fs';
 import path from 'node:path';
 
 const [settingsPath, scriptPath, ...flags] = process.argv.slice(2);
 if (!settingsPath || !scriptPath) {
-  console.error('Uso: node merge-settings.mjs <settings.json> <jev-hooks.mjs> [--dry-run] [--remove]');
+  console.error('Uso: node merge-settings.mjs <settings.json> <jev-hooks.mjs> [--banner=<session-start.mjs>] [--dry-run] [--remove]');
   process.exit(1);
 }
 const dry = flags.includes('--dry-run');
 const remove = flags.includes('--remove');
-const MARCA = 'jev-hooks.mjs';
+const MARCAS = ['jev-hooks.mjs', 'session-start.mjs'];
+const banner = flags.find((f) => f.startsWith('--banner='))?.slice(9);
 
 const script = path.resolve(scriptPath).replace(/\\/g, '/');
 const cmd = (modo) => `node "${script}" ${modo}`;
 
 const NOVOS = {
+  ...(banner && {
+    SessionStart: [{ matcher: 'startup|clear', hooks: [{ type: 'command', command: `node "${path.resolve(banner).replace(/\\/g, '/')}"`, timeout: 5 }] }],
+  }),
   UserPromptSubmit: [{ hooks: [{ type: 'command', command: cmd('roteador'), timeout: 8 }] }],
   PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: cmd('guarda-bash'), timeout: 8 }] }],
   PostToolUse: [{ matcher: 'WebFetch|mcp__jev-browser__.*', hooks: [{ type: 'command', command: cmd('filtro-saida'), timeout: 30 }] }],
@@ -30,11 +34,12 @@ if (fs.existsSync(settingsPath)) {
 
 const semJev = (lista = []) =>
   lista
-    .map((g) => ({ ...g, hooks: (g.hooks ?? []).filter((h) => !String(h.command ?? '').includes(MARCA)) }))
+    .map((g) => ({ ...g, hooks: (g.hooks ?? []).filter((h) => !MARCAS.some((m) => String(h.command ?? '').includes(m))) }))
     .filter((g) => g.hooks.length > 0);
 
 settings.hooks ??= {};
-for (const [evento, grupos] of Object.entries(NOVOS)) {
+for (const evento of ['SessionStart', 'UserPromptSubmit', 'PreToolUse', 'PostToolUse']) {
+  const grupos = NOVOS[evento] ?? [];
   const base = semJev(settings.hooks[evento]);
   settings.hooks[evento] = remove ? base : [...base, ...grupos];
   if (!settings.hooks[evento].length) delete settings.hooks[evento];
