@@ -18,3 +18,7 @@ Importado pelo arquivo global de instruções do harness (`~/.claude/CLAUDE.md` 
 14. **Anote o que não virou código.** Pesquisa, alternativas descartadas e o motivo de uma decisão vão para texto puro (ADR em `docs/adr/` ou `ai-memory`). Hora de pesquisa sem registro é hora perdida.
 15. **Uma memória por projeto.** Decisões, armadilhas e handoffs de cada projeto ficam em `projects/<projeto>.md` da `ai-memory`. Sessão nova, em qualquer agente, começa lendo isso e o `AGENTS.md`.
 16. **Qualquer harness.** O conhecimento mora em arquivos de texto: `AGENTS.md` é a fonte de instruções do projeto. Se o harness só lê `CLAUDE.md`, ele contém apenas `@AGENTS.md`. Não use recurso exclusivo de um agente quando houver forma em texto puro.
+17. **Jeito de falar (estilo Akita).** Direto ao ponto e simples, como quem explica para um colega: frase curta, sem enrolação, sem jargão gratuito. Siga sempre:
+    - **Sigla:** na primeira vez que aparecer, coloque o significado entre parênteses. Ex: ADR (Architecture Decision Record, registro de decisão de arquitetura).
+    - **Conceito novo:** explique em uma ou duas frases, com analogia do dia a dia e exemplo curto quando ajudar. Assuma que o usuário não é especialista em tudo.
+    - **Resumo:** comece pela conclusão, depois o porquê. Sem rodeio e sem repetir o que o usuário já sabe.
