@@ -12,16 +12,18 @@ if (!settingsPath || !scriptPath) {
 }
 const dry = flags.includes('--dry-run');
 const remove = flags.includes('--remove');
-const MARCAS = ['jev-hooks.mjs', 'session-start.mjs'];
+const MARCAS = ['jev-hooks.mjs', 'session-start.mjs', 'memoria-stop.mjs'];
 const banner = flags.find((f) => f.startsWith('--banner='))?.slice(9);
 
 const script = path.resolve(scriptPath).replace(/\\/g, '/');
+const memoria = path.join(path.dirname(script), 'memoria-stop.mjs');
 const cmd = (modo) => `node "${script}" ${modo}`;
 
 const NOVOS = {
   ...(banner && {
     SessionStart: [{ matcher: 'startup|clear', hooks: [{ type: 'command', command: `node "${path.resolve(banner).replace(/\\/g, '/')}"`, timeout: 5 }] }],
   }),
+  Stop: [{ hooks: [{ type: 'command', command: `node "${memoria}"`, timeout: 5 }] }],
   UserPromptSubmit: [{ hooks: [{ type: 'command', command: cmd('roteador'), timeout: 8 }] }],
   PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: cmd('guarda-bash'), timeout: 8 }] }],
   PostToolUse: [{ matcher: 'WebFetch|mcp__jev-browser__.*', hooks: [{ type: 'command', command: cmd('filtro-saida'), timeout: 30 }] }],
@@ -38,7 +40,7 @@ const semJev = (lista = []) =>
     .filter((g) => g.hooks.length > 0);
 
 settings.hooks ??= {};
-for (const evento of ['SessionStart', 'UserPromptSubmit', 'PreToolUse', 'PostToolUse']) {
+for (const evento of ['SessionStart', 'Stop', 'UserPromptSubmit', 'PreToolUse', 'PostToolUse']) {
   const grupos = NOVOS[evento] ?? [];
   const base = semJev(settings.hooks[evento]);
   settings.hooks[evento] = remove ? base : [...base, ...grupos];

@@ -76,6 +76,7 @@ if [ "$HOOKS" -eq 1 ]; then
   else
     copy "$SRC/hooks/jev-hooks.mjs" "$DEST/hooks/jev-hooks.mjs" "hook:jev-hooks"
     extra=(); [ "$DRY" -eq 1 ] && extra=(--dry-run)
+    copy "$SRC/hooks/memoria-stop.mjs" "$DEST/hooks/memoria-stop.mjs" "hook:memoria-stop"
     copy "$SRC/hooks/session-start.mjs" "$DEST/hooks/session-start.mjs" "hook:session-start"
     node "$SRC/hooks/merge-settings.mjs" "$DEST/settings.json" "$DEST/hooks/jev-hooks.mjs" --banner="$DEST/hooks/session-start.mjs" "${extra[@]}"       && hooks_msg="hooks registrados em $DEST/settings.json: banner de inicio de sessao (DEVKIT_BANNER=off desliga) e hooks do Jev (so agem se TYPESAFE_API_KEY existir; JEV_HOOKS=off desliga)."       || hooks_msg="falha ao registrar os hooks do Jev em settings.json."
   fi

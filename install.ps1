@@ -58,6 +58,7 @@ if (-not $NoHooks) {
         $hooksMsg = "hooks do Jev NAO instalados: Node.js nao encontrado (precisa do Node 22+)."
     } else {
         Copy-Item-Safe "$src\hooks\jev-hooks.mjs" "$Dest\hooks\jev-hooks.mjs" "hook:jev-hooks"
+        Copy-Item-Safe "$src\hooks\memoria-stop.mjs" "$Dest\hooks\memoria-stop.mjs" "hook:memoria-stop"
         Copy-Item-Safe "$src\hooks\session-start.mjs" "$Dest\hooks\session-start.mjs" "hook:session-start"
         $mergeArgs = @("$src\hooks\merge-settings.mjs", "$Dest\settings.json", "$Dest\hooks\jev-hooks.mjs", "--banner=$Dest\hooks\session-start.mjs")
         if ($DryRun) { $mergeArgs += "--dry-run" }
