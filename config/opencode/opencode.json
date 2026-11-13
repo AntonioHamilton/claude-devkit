@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "~/.config/opencode/devkit-rules.md",
+    "~/.config/opencode/devkit-opencode.md"
+  ],
+  "mcp": {
+    "servers": {
+      "chrome-devtools": {
+        "type": "local",
+        "command": ["chrome-devtools-mcp"]
+      },
+      "mobile": {
+        "type": "local",
+        "command": ["mcp-server-mobile"],
+        "environment": {
+          "PATH": "{env:PATH};{env:LOCALAPPDATA}\\Microsoft\\WinGet\\Links"
+        }
+      }
+    }
+  },
+  "plugins": [
+    "opencode-auto-fallback@0.4.61"
+  ]
+}

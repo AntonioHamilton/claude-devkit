@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/HyeokjaeLee/opencode-auto-fallback/main/docs/fallback.schema.json",
+  "enabled": true,
+  "autoUpdate": false,
+  "defaultFallback": [
+    { "model": "opencode/deepseek-v4.1-flash-free", "variant": "high" },
+    { "model": "opencode/glm-5.3-flash-free", "variant": "high" },
+    { "model": "opencode/minimax-m3.1-flash-free", "variant": "high" },
+    { "model": "opencode/beam-free", "variant": "high" },
+    { "model": "opencode/longcat-2.5-free" },
+    { "model": "opencode/iceman-free" }
+  ],
+  "defaultLargeContextModel": false,
+  "defaultMinContextRatio": 0.1,
+  "agents": {},
+  "cooldownMs": 60000,
+  "maxRetries": 2,
+  "logging": true
+}
