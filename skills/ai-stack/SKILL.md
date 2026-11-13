@@ -1,67 +1,67 @@
 ---
 name: ai-stack
-description: Para projeto novo ou sem stack definida - faz as perguntas-chave (usuários, dados, segurança, plataforma) e sugere linguagem, banco e tipo de aplicação com racional curto, mais referências de UI. Usar ao começar um projeto, ou quando o usuário perguntar "que stack uso?".
+description: For a new project or one without a defined stack - asks the key questions (users, data, security, platform) and suggests language, database and app type with a short rationale, plus UI references. Use when starting a project, or when the user asks "que stack uso?".
 ---
 
 # ai-stack
 
-Objetivo: decidir a stack mais simples que serve, rápido e barato. O dono sabe JavaScript/TypeScript e quer abrir espaço para Go e Java no backend.
+Goal: decide the simplest stack that works, fast and cheap. The owner knows JavaScript/TypeScript and wants to open room for Go and Java on the backend.
 
-## 1. Perguntas-chave
+## 1. Key questions
 
-Uma única rodada da ferramenta de perguntas do harness (`AskUserQuestion` no Claude Code; sem ela, pergunte em texto, numerado), 4 perguntas, opção recomendada primeiro. Pule o que o `AGENTS.md`, a memória ou o pedido já respondem.
+A single round of the harness's question tool (`AskUserQuestion` in Claude Code; without it, ask in numbered text), 4 questions, recommended option first. Skip anything that `AGENTS.md`, memory or the request already answers.
 
-1. **Usuários:** só eu / até dezenas / centenas / milhares ou mais.
-2. **Dados:** volume (poucos MB / GB / muito) e forma (tabelas relacionais / JSON de formato livre / arquivos e mídia).
-3. **Segurança:** nenhuma (uso local) / login simples / dados pessoais / pagamento ou dado sensível.
-4. **Plataforma:** web / web instalável (PWA) / app mobile / desktop ou CLI.
+1. **Users:** just me / up to dozens / hundreds / thousands or more.
+2. **Data:** volume (a few MB / GB / a lot) and shape (relational tables / free-form JSON / files and media).
+3. **Security:** none (local use) / simple login / personal data / payment or sensitive data.
+4. **Platform:** web / installable web (PWA) / mobile app / desktop or CLI.
 
-## 2. Sugestão (formato fixo, curto)
+## 2. Suggestion (fixed, short format)
 
 ```
-STACK: <linguagem> + <framework> + <banco> + <plataforma>
-POR QUE: <2-3 linhas ligando às respostas>
-ALTERNATIVA: <uma, e quando valeria trocar>
-CUSTO: <hospedagem e o que é grátis>
+STACK: <language> + <framework> + <database> + <platform>
+POR QUE: <2-3 lines tying back to the answers>
+ALTERNATIVA: <one, and when it would be worth switching>
+CUSTO: <hosting and what is free>
 ```
 
-### Linguagens
+### Languages
 
-| Linguagem | Serve para | Escolha quando |
+| Language | Good for | Choose when |
 |---|---|---|
-| TypeScript/JavaScript | Front, back e scripts na mesma linguagem | Padrão: o dono domina; menos peças |
-| Go | API simples e rápida, binário único, concorrência | Backend que vai crescer ou rodar barato; quer aprender |
-| Java | Backend corporativo, ecossistema Spring | O trabalho usa ou o objetivo é aprender; pesado para projeto pequeno |
-| Python | Scripts, dados, automação, IA | Estudo, análise, protótipo de dados |
+| TypeScript/JavaScript | Front end, back end and scripts in one language | Default: the owner knows it; fewer parts |
+| Go | Simple, fast API, single binary, concurrency | Backend that will grow or run cheaply; wants to learn |
+| Java | Enterprise backend, Spring ecosystem | Work uses it or the goal is to learn; heavy for a small project |
+| Python | Scripts, data, automation, AI | Study, analysis, data prototype |
 
-### Bancos
+### Databases
 
-| Banco | Escolha quando |
+| Database | Choose when |
 |---|---|
-| SQLite | Uso pessoal ou poucos usuários, zero custo, um arquivo. Padrão para projeto pequeno |
-| Postgres (Neon, Supabase) | Várias pessoas, relacional, quer crescer. Coluna `JSONB` cobre dado JSON de formato livre |
-| MongoDB | Só se o dado for JSON de formato realmente imprevisível e sem relações |
-| Firebase/Supabase (BaaS) | Quer login e banco sem escrever backend; protótipo rápido |
-| Arquivos/S3 | Mídia e anexos; guarde só o caminho no banco |
+| SQLite | Personal use or few users, zero cost, one file. Default for a small project |
+| Postgres (Neon, Supabase) | Several people, relational, wants to grow. A `JSONB` column covers free-form JSON data |
+| MongoDB | Only if the data is truly unpredictable JSON with no relations |
+| Firebase/Supabase (BaaS) | Wants login and a database without writing a backend; fast prototype |
+| Files/S3 | Media and attachments; store only the path in the database |
 
-### Tipo de aplicação
+### Type of application
 
-- **Web** (padrão): custo mínimo, um deploy.
-- **PWA:** web que instala no celular; resolve a maioria dos "preciso de app".
-- **App mobile:** Expo/React Native só se precisar de loja ou hardware.
-- **Nativo (Swift/Kotlin):** só para recurso de sistema que o resto não alcança.
-- **CLI/desktop:** automação pessoal.
+- **Web** (default): minimal cost, one deploy.
+- **PWA:** web that installs on the phone; solves most of the "I need an app" cases.
+- **Mobile app:** Expo/React Native only if you need a store or hardware.
+- **Native (Swift/Kotlin):** only for system features the rest cannot reach.
+- **CLI/desktop:** personal automation.
 
-Regra: quanto menos usuários e menos dado sensível, menos peças. Sem login, sem servidor, sem banco remoto, se não precisar.
+Rule: the fewer users and the less sensitive data, the fewer parts. No login, no server, no remote database, unless you need them.
 
 ## 3. UI
 
-Direção visual moderna e limpa, com espaço em branco, tipografia forte e poucos tokens de cor (claro e escuro). Referências: https://www.tokos.com.br/ (landing), https://build.withcastor.co/pt, https://refero.design/ (biblioteca de padrões de tela).
+Modern, clean visual direction, with white space, strong typography and few color tokens (light and dark). References: https://www.tokos.com.br/ (landing page), https://build.withcastor.co/pt, https://refero.design/ (library of screen patterns).
 
-- Registre a direção escolhida no `AGENTS.md` (paleta, tipografia, referência) e reutilize; não reconsulte a web a cada tela.
-- Consulte no máximo uma referência por tarefa, pelo `jev-browser` (`format: "markdown"`, `max_steps` baixo), e só se o usuário pedir algo visual novo.
-- UI generativa por IA: `tools/openui.md` (opcional).
+- Record the chosen direction in `AGENTS.md` (palette, typography, reference) and reuse it; do not re-check the web for every screen.
+- Consult at most one reference per task, through the browser MCP (see `mcp/README.md`), and only if the user asks for something new visually.
+- AI-generated UI: `tools/openui.md` (optional).
 
-## 4. Registro
+## 4. Record
 
-Grave a decisão no `AGENTS.md` (seção Stack) e, se o usuário revelou preferência, em `ai-memory`.
+Write the decision in `AGENTS.md` (Stack section) and, if the user revealed a preference, in `devkit-memory`.

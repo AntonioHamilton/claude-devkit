@@ -1,20 +1,20 @@
 #!/usr/bin/env node
-// Hook SessionStart: abre a sessão com os dois passos que cabem ao usuário, em fonte grande e colorida.
-// Os outros dois (revisar, guardar a lição) são lembretes só para o agente.
-// Não usa rede nem TYPESAFE_API_KEY. Desligar: DEVKIT_BANNER=off. Sem cor: DEVKIT_BANNER_COLOR=off
-// Saída: systemMessage (o que o usuário vê) + additionalContext (o que o agente lê).
+// SessionStart hook: opens the session with the two steps that belong to the user, in large colored font.
+// The other two (review, save the lesson) are reminders for the agent only.
+// Uses no network. Turn off: DEVKIT_BANNER=off. No color: DEVKIT_BANNER_COLOR=off
+// Output: systemMessage (what the user sees) + additionalContext (what the agent reads).
 
 if (process.env.DEVKIT_BANNER === 'off') process.exit(0);
 
 const PASSOS = [
-  ['Escolha uma tarefa limitada', 'Escolha um trabalho com um final claro e um resultado que você consiga conferir. Mantenha a primeira mudança pequena o bastante pra revisar.'],
-  ['Escreva as restrições', 'Diga ao agente o que precisa continuar verdadeiro, quais comandos verificam o trabalho e no que ele não deve mexer.'],
+  ['Choose one limited job', 'Pick a job with a clear end and a result you can check. Keep the first change small enough to review.'],
+  ['State the constraints', 'Tell the agent what must stay true, which commands verify the work, and what it must not touch.'],
 ];
 
 const COR = process.env.DEVKIT_BANNER_COLOR === 'off' ? ['', '', ''] : ['\x1b[1;38;5;214m', '\x1b[38;5;180m', '\x1b[0m'];
 const [AMBAR, SUAVE, FIM] = COR;
 
-// Fonte 3x5 em blocos. Cada glifo: 5 linhas de 3 colunas ('#' = cheio).
+// 3x5 block font. Each glyph: 5 rows of 3 columns ('#' = filled).
 const G = {
   A: ['###', '#.#', '###', '#.#', '#.#'], B: ['##.', '#.#', '##.', '#.#', '##.'],
   C: ['###', '#..', '#..', '#..', '###'], D: ['##.', '#.#', '#.#', '#.#', '##.'],
@@ -64,7 +64,7 @@ function grande(titulo) {
 const tela = ['', ...PASSOS.flatMap(([t, d], i) => [`  ${AMBAR}${i + 1}.${FIM}`, ...grande(t).map((l) => `  ${AMBAR}${l}${FIM}`), `  ${SUAVE}${d}${FIM}`, ''])].join('\n');
 
 const contexto =
-  'Início de sessão (claude-devkit). O usuário acabou de ver na tela: (1) escolha uma tarefa limitada e (2) escreva as restrições. Se o primeiro pedido dele for grande ou vago, ajude a limitar e grave as restrições (o que precisa continuar verdadeiro, comandos de verificação, no que não mexer) no AGENTS.md do projeto. Dois lembretes só para você: (3) entregue a mudança de forma que uma pessoa revise o diff e rode as verificações; ela continua responsável por aceitar; (4) toda falha corrigida vira um teste ou uma regra escrita para a próxima sessão. Não repita estes avisos ao usuário.';
+  'Session start (claude-devkit). The user has just seen on screen: (1) choose one limited job and (2) state the constraints. If their first request is big or vague, help narrow it and write the constraints (what must stay true, verification commands, what not to touch) into the project AGENTS.md. Two reminders for you only: (3) deliver the change so a person can review the diff and run the checks; that person remains responsible for accepting it; (4) every fixed failure becomes a test or a rule written for the next session. Do not repeat these notices to the user.';
 
 process.stdout.write(
   JSON.stringify({

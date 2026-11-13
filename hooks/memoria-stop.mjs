@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Hook Stop: se o usuário corrigiu ou revelou preferência neste turno e nada foi gravado, pede ao agente para gravar na ai-memory.
-// Sem rede. Barra no máximo uma vez por turno (stop_hook_active). Desligar: DEVKIT_MEMORIA=off
+// Stop hook: if the user corrected you or revealed a preference this turn and nothing was saved, asks the agent to save it to devkit-memory.
+// No network. Blocks at most once per turn (stop_hook_active). Turn off: DEVKIT_MEMORIA=off
 import fs from 'node:fs';
 
 if (process.env.DEVKIT_MEMORIA === 'off') process.exit(0);
@@ -47,7 +47,7 @@ const turno = linhas.slice(inicio);
 if (!SINAL.test(textoUsuario(turno[0].message))) process.exit(0);
 
 const jaGravou = turno.some(
-  (l) => l.type === 'assistant' && blocos(l.message).some((b) => b.type === 'tool_use' && /ai-memory|\.claude[\\/]+memory/i.test(JSON.stringify(b.input ?? {}))),
+  (l) => l.type === 'assistant' && blocos(l.message).some((b) => b.type === 'tool_use' && /devkit-memory|\.claude[\\/]+memory/i.test(JSON.stringify(b.input ?? {}))),
 );
 if (jaGravou) process.exit(0);
 
@@ -55,6 +55,6 @@ process.stdout.write(
   JSON.stringify({
     decision: 'block',
     reason:
-      'O usuário corrigiu, confirmou uma abordagem ou revelou uma preferência neste turno e nada foi gravado. Se isso muda como você deve trabalhar, grave agora com `ai-memory salvar` (uma linha, sem pedir ok). Se não muda, encerre sem gravar.',
+      'The user corrected you, confirmed an approach, or revealed a preference in this turn, and nothing was saved. If that changes how you should work, save it now with `devkit-memory salvar` (one line, no need to ask). If it does not, end without saving.',
   }),
 );

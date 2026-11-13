@@ -1,32 +1,25 @@
 #!/usr/bin/env node
-// Registra (ou remove) os hooks do Jev no settings.json do Claude Code, sem tocar no resto.
-// Uso: node merge-settings.mjs <settings.json> <jev-hooks.mjs> [--banner=<session-start.mjs>] [--dry-run] [--remove]
-// Idempotente: entradas anteriores do jev-hooks.mjs são trocadas, nunca duplicadas.
+// Registers (or removes) the devkit's Claude Code hooks in settings.json, without touching the rest.
+// Usage: node merge-settings.mjs <settings.json> <hooks-dir> [--dry-run] [--remove]
+// Registers: session-start.mjs (SessionStart banner) and memoria-stop.mjs (Stop).
+// Idempotent: earlier entries of these hooks are replaced, never duplicated.
 import fs from 'node:fs';
 import path from 'node:path';
 
-const [settingsPath, scriptPath, ...flags] = process.argv.slice(2);
-if (!settingsPath || !scriptPath) {
-  console.error('Uso: node merge-settings.mjs <settings.json> <jev-hooks.mjs> [--banner=<session-start.mjs>] [--dry-run] [--remove]');
+const [settingsPath, hooksDir, ...flags] = process.argv.slice(2);
+if (!settingsPath || !hooksDir) {
+  console.error('Usage: node merge-settings.mjs <settings.json> <hooks-dir> [--dry-run] [--remove]');
   process.exit(1);
 }
 const dry = flags.includes('--dry-run');
 const remove = flags.includes('--remove');
-const MARCAS = ['jev-hooks.mjs', 'session-start.mjs', 'memoria-stop.mjs'];
-const banner = flags.find((f) => f.startsWith('--banner='))?.slice(9);
+const MARCAS = ['session-start.mjs', 'memoria-stop.mjs'];
 
-const script = path.resolve(scriptPath).replace(/\\/g, '/');
-const memoria = path.join(path.dirname(script), 'memoria-stop.mjs');
-const cmd = (modo) => `node "${script}" ${modo}`;
+const hook = (nome) => `node "${path.resolve(hooksDir, nome).replace(/\\/g, '/')}"`;
 
 const NOVOS = {
-  ...(banner && {
-    SessionStart: [{ matcher: 'startup|clear', hooks: [{ type: 'command', command: `node "${path.resolve(banner).replace(/\\/g, '/')}"`, timeout: 5 }] }],
-  }),
-  Stop: [{ hooks: [{ type: 'command', command: `node "${memoria}"`, timeout: 5 }] }],
-  UserPromptSubmit: [{ hooks: [{ type: 'command', command: cmd('roteador'), timeout: 8 }] }],
-  PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: cmd('guarda-bash'), timeout: 8 }] }],
-  PostToolUse: [{ matcher: 'WebFetch|mcp__jev-browser__.*', hooks: [{ type: 'command', command: cmd('filtro-saida'), timeout: 30 }] }],
+  SessionStart: [{ matcher: 'startup|clear', hooks: [{ type: 'command', command: hook('session-start.mjs'), timeout: 5 }] }],
+  Stop: [{ hooks: [{ type: 'command', command: hook('memoria-stop.mjs'), timeout: 5 }] }],
 };
 
 let settings = {};
@@ -34,23 +27,25 @@ if (fs.existsSync(settingsPath)) {
   settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8').replace(/^﻿/, ''));
 }
 
-const semJev = (lista = []) =>
+const semDevkit = (lista = []) =>
   lista
     .map((g) => ({ ...g, hooks: (g.hooks ?? []).filter((h) => !MARCAS.some((m) => String(h.command ?? '').includes(m))) }))
     .filter((g) => g.hooks.length > 0);
 
 settings.hooks ??= {};
-for (const evento of ['SessionStart', 'Stop', 'UserPromptSubmit', 'PreToolUse', 'PostToolUse']) {
-  const grupos = NOVOS[evento] ?? [];
-  const base = semJev(settings.hooks[evento]);
-  settings.hooks[evento] = remove ? base : [...base, ...grupos];
+for (const evento of Object.keys(settings.hooks)) {
+  const base = semDevkit(settings.hooks[evento]);
+  settings.hooks[evento] = remove ? base : [...base, ...(NOVOS[evento] ?? [])];
   if (!settings.hooks[evento].length) delete settings.hooks[evento];
+}
+for (const [evento, grupos] of Object.entries(remove ? {} : NOVOS)) {
+  if (!settings.hooks[evento]) settings.hooks[evento] = grupos;
 }
 if (!Object.keys(settings.hooks).length) delete settings.hooks;
 
 const texto = JSON.stringify(settings, null, 2) + '\n';
 if (dry) {
-  console.log(`[dry-run] ${remove ? 'removeria' : 'registraria'} hooks do Jev em ${settingsPath}`);
+  console.log(`[dry-run] would ${remove ? 'remove' : 'register'} devkit hooks in ${settingsPath}`);
   process.exit(0);
 }
 
@@ -63,4 +58,4 @@ if (fs.existsSync(settingsPath)) {
 }
 fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
 fs.writeFileSync(settingsPath, texto);
-console.log(`${remove ? 'hooks do Jev removidos de' : 'hooks do Jev registrados em'} ${settingsPath}`);
+console.log(`devkit hooks ${remove ? 'removed from' : 'registered in'} ${settingsPath}`);

@@ -1,38 +1,38 @@
 ---
 name: ai-effort
-description: Decide o esforço de uma tarefa de desenvolvimento antes de agir - direto, enxuto ou completo (manager) - e o nível de teste. Usar no início de qualquer pedido de código, ou quando o usuário perguntar "precisa do manager?" ou "que teste rodar?".
+description: Decide the effort for a development task before acting - direto, enxuto or completo (manager) - and the test level. Use at the start of any code request, or when the user asks "precisa do manager?" or "que teste rodar?".
 ---
 
 # ai-effort
 
-O usuário não precisa pedir o manager. **A decisão é sua**, tomada em silêncio no começo de cada pedido. Contexto do dono: projetos pessoais, poucos usuários, plano com poucos tokens. O padrão é o menor esforço que entrega com segurança.
+The user does not need to ask for the manager. **The decision is yours**, made silently at the start of each request. Owner context: personal projects, few users, a plan with few tokens. The default is the least effort that delivers safely.
 
-## Três níveis
+## Three levels
 
-| Nível | Quando | O que faz |
+| Level | When | What it does |
 |---|---|---|
-| **Direto** | Ajuste pequeno, bug de causa óbvia, texto, estilo, dúvida, script curto, estudo | Sem manager. Lê o `AGENTS.md`, edita, roda o check relevante, responde. Nenhum subagent. |
-| **Enxuto** | Feature média, vários arquivos, bug sem causa óbvia, projeto novo e simples | `/manager` em modo enxuto: checklist no chat, sem OpenSpec, 0 ou 1 scout, a própria sessão implementa. |
-| **Completo** | Dado de usuário real, autenticação, pagamento, migração, mudança difícil de reverter, vários módulos, ou o usuário pediu "direito"/"manager" | `/manager` em modo completo: scouts, spec, aprovação, developer por estágio, validação em loop. |
+| **Direto** | Small tweak, bug with an obvious cause, text, style, question, short script, study | No manager. Reads `AGENTS.md`, edits, runs the relevant check, replies. No subagent. |
+| **Enxuto** | Medium feature, several files, bug without an obvious cause, new and simple project | `/manager` in enxuto mode: checklist in the chat, no OpenSpec, 0 or 1 scout, the session itself implements. |
+| **Completo** | Real user data, authentication, payment, migration, change that is hard to reverse, several modules, or the user asked for "direito"/"manager" | `/manager` in completo mode: scouts, spec, approval, developer per stage, validation in a loop. |
 
-Regras de decisão:
-- Dúvida entre dois níveis: o menor, se a mudança for fácil de reverter; o maior, se não for.
-- Usuário pediu `/manager` e a tarefa é trivial: diga uma vez que "direto" resolve e siga o que ele escolher.
-- Estudo ou projetinho de aprendizado: nível direto ou enxuto, e explique o porquê das escolhas em 1-2 frases.
-- Projeto novo sem stack definida: rode a skill `ai-stack` antes.
-- O nível pode subir no meio (apareceu migração, auth): avise e suba. Não precisa descer.
+Decision rules:
+- Torn between two levels: the smaller one if the change is easy to reverse; the larger one if it is not.
+- User asked for `/manager` and the task is trivial: say once that "direto" is enough and follow what they choose.
+- Study or small learning project: direto or enxuto level, and explain the reasons for the choices in 1-2 sentences.
+- New project without a defined stack: run the `ai-stack` skill first.
+- The level can go up midway (a migration or auth showed up): tell the user and raise it. There is no need to lower it.
 
-## Nível de teste
+## Test level
 
-Escolha o menor que dá confiança:
+Choose the smallest one that gives confidence:
 
-1. **Conferência pela IA:** mudança visual ou trivial. Abra, veja, registre o que viu.
-2. **Teste pontual** ao lado do código: lógica nova ou bug corrigido. Todo bug corrigido ganha um teste que falha sem a correção.
-3. **Suíte da persona** (do `AGENTS.md`): mudança que toca um fluxo de usuário. Rode só as personas afetadas.
-4. **Agent `tester` + framework de regressão** (Playwright, Vitest, testes de contrato da API): fluxo crítico (login, pagamento, cadastro) ou projeto com mais de uma tela. Existe para não retestar o site inteiro a cada mudança. Use o framework que o projeto já tem; ferramenta nova só com ok.
+1. **AI check:** visual or trivial change. Open it, look, record what you saw.
+2. **Targeted test** next to the code: new logic or a fixed bug. Every fixed bug gets a test that fails without the fix.
+3. **Persona suite** (from `AGENTS.md`): change that touches a user flow. Run only the affected personas.
+4. **`tester` agent + regression framework** (Playwright, Vitest, API contract tests): critical flow (login, payment, sign-up) or a project with more than one screen. It exists so the whole site does not get retested on every change. Use the framework the project already has; a new tool only with ok.
 
-Personas e regressão novas vão para o `AGENTS.md` do projeto, nunca para a memória global.
+New personas and regression cases go into the project's `AGENTS.md`, never into global memory.
 
-## Modelo
+## Model
 
-Aplique a regra `jev-router` a tudo que delegar.
+Apply the model rule in `rules/devkit-rules.md` to everything you delegate.

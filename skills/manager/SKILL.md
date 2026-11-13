@@ -1,67 +1,71 @@
 ---
 name: manager
-description: Conduz uma tarefa de desenvolvimento do pedido até o PR, na própria sessão (a sessão vira o manager), em modo enxuto ou completo. Usar quando o usuário disser "manager", "roda o pipeline", "quero implementar X direito", ou quando a skill ai-effort decidir que a tarefa pede.
+description: Drives a development task from the request to the PR, in the session itself (the session becomes the manager), in enxuto or completo mode. Use when the user says "manager", "roda o pipeline", "quero implementar X direito", or when the ai-effort skill decides the task calls for it.
 ---
 
 # Manager
 
-**Esta sessão é o manager.** Não despache o manager como subagent: você conversa com o usuário, coordena os agents (`scout`, `developer`, `tester`, `reviewer`) e repassa só o que importa. Perguntar ao usuário e esperar a resposta só é possível aqui.
+**This session is the manager.** Do not dispatch the manager as a subagent: you talk to the user, coordinate the agents (`scout`, `developer`, `tester`, `reviewer`) and pass on only what matters. Asking the user and waiting for the answer is only possible here.
 
-Padrões de workflow usados (Anthropic, "Building effective agents"): routing (nível e modelo), orchestrator-workers (scouts e developers), evaluator-optimizer (loop de validação). Nada além disso: complexidade só entra quando melhora o resultado.
+Workflow patterns used (Anthropic, "Building effective agents"): routing (level and model), orchestrator-workers (scouts and developers), evaluator-optimizer (validation loop). Nothing beyond that: complexity only comes in when it improves the result.
 
-## Nível
+## Teams
 
-Use o nível que `ai-effort` indicou (ou o pedido do usuário) e diga em uma linha. **Enxuto** é o padrão; **completo** quando houver dado real de usuário, auth, pagamento, migração ou mudança difícil de reverter. Modelo de cada subagent: regra `jev-router`.
+When the task belongs to an area, load the team skill before implementing: `game-dev-team`, `frontend-team`, `backend-team`, `react-native-team` or `regression-team`. The team defines the roster, handoffs, what not to delegate and the acceptance criterion; the model rule in `rules/devkit-rules.md` defines the model. In Claude Code, the roster uses `developer`, `tester` and `reviewer` — do not invent an agent that does not exist.
 
-Cada resposta começa com `[manager] n/7 nome · nível`.
+## Level
 
-## Pipeline (7 etapas)
+Use the level `ai-effort` indicated (or the user's request) and state it in one line. **Enxuto** is the default; **completo** when there is real user data, auth, payment, migration, or a change that is hard to reverse. Model for each subagent: the model rule in `rules/devkit-rules.md`.
+
+Each reply starts with `[manager] n/7 name · level`.
+
+## Pipeline (7 steps)
 
 ### 1. Intake
-Uma só rodada de leitura, barata:
-- `ai-memory carregar` (só `preferencias.md`, `core.md`, projeto atual). O que a memória responde, não pergunte.
-- `AGENTS.md` da raiz. Se não existe: crie a partir de `AGENTS.template.md`, na pasta desta skill, preenchido com o que você já sabe, e mostre ao usuário antes de gravar.
-- Projeto novo sem stack: rode `ai-stack`.
-- Reformule o pedido em 2-3 frases: o que, para quem, o que conta como pronto, o que fica de fora. Mudança não commitada no repo: pergunte antes de criar branch.
+A single, cheap reading round:
+- `devkit-memory carregar` (only `preferencias.md`, `core.md`, current project). Do not ask about what memory already answers.
+- Root `AGENTS.md`. If it does not exist: create it from `AGENTS.template.md`, in this skill's folder, filled in with what you already know, and show it to the user before saving.
+- New project without a stack: run `ai-stack`.
+- Restate the request in 2-3 sentences: what, for whom, what counts as done, what is out of scope. Uncommitted changes in the repo: ask before creating a branch.
 
 ### 2. Recon
-- **Enxuto:** `rg` e leituras parciais na própria sessão, ou 1 scout se o terreno for grande.
-- **Completo:** 1 ou 2 scouts (haiku) em paralelo, facetas ortogonais, cada um com a tarefa + faceta. Consolide em um parágrafo; conflito entre relatórios vira pergunta, não chute.
-Recon nunca é pulado, mas pode ser de 2 comandos.
+- **Enxuto:** `rg` and partial reads in the session itself, or 1 scout if the terrain is large.
+- **Completo:** 1 or 2 scouts (haiku) in parallel, orthogonal facets, each with the task + facet. Consolidate into one paragraph; a conflict between reports becomes a question, not a guess.
+Recon is never skipped, but it can be just 2 commands.
 
-### 3. Plano
-- **Enxuto:** checklist numerada no chat. Cada item: o que muda + critério de aceite + "como você confere" (passo humano de 1 linha).
-- **Completo:** spec no OpenSpec (`tools/openspec.md`; `openspec init` só com ok) em `openspec/changes/<slug>/`, cada tarefa de `tasks.md` é um estágio com critério de aceite e "como você confere". Grill (`grill-with-docs`) **só** sobre decisão difícil de reverter, que vira ADR; o que o recon ou os ADRs respondem não se pergunta. Depois, `doubt` **uma vez** sobre a spec.
-Estágio vago (sem como conferir) se conserta agora.
+### 3. Plan
+- **Enxuto:** numbered checklist in the chat. Each item: what changes + acceptance criterion + "how you check it" (a one-line human step).
+- **Completo:** spec in OpenSpec (`tools/openspec.md`; `openspec init` only with ok) in `openspec/changes/<slug>/`; each task in `tasks.md` is a stage with an acceptance criterion and "how you check it". Grill (`grill-with-docs`) **only** on decisions that are hard to reverse, which become ADRs; what recon or the ADRs answer is not asked. Then, `doubt` **once** on the spec.
+A vague stage (with no way to check it) gets fixed right now.
 
-### 4. Aprovação
-Uma única rodada de perguntas (`AskUserQuestion` no Claude Code; sem ela, texto numerado), com duas perguntas:
-1. **Plano:** aprovar e implementar (Recomendado) / ajustar / só o plano.
-2. **Testes de regressão** dos erros que quebram a aplicação: sim, completo (agent `tester`, personas + suíte) / sim, só o que esta mudança toca / não. Recomende pelo risco e pelo `ai-effort`.
-Resumo de até 8 linhas antes da pergunta. Sem aprovação, nenhum código.
+### 4. Approval
+A single round of questions (`AskUserQuestion` in Claude Code; without it, numbered text), with two questions:
+1. **Plan:** approve and implement (Recommended) / adjust / plan only.
+2. **Regression tests** for the errors that break the application: yes, full (agent `tester`, personas + suite) / yes, only what this change touches / no. Recommend based on risk and `ai-effort`.
+Summary of up to 8 lines before the question. Without approval, no code.
 
-### 5. Implementação
-Crie a branch (`scripts/new-branch.*`) e implemente:
-- **Enxuto:** a própria sessão implementa, em ordem, rodando o check mais barato por item. Sem developer: o handoff custa mais que o ganho.
-- **Completo:** um `developer` por estágio, um de cada vez (modelo conforme `jev-router`). Confira o relatório contra `git diff`. Commit por estágio. `doubt` só em estágio marcado como arriscado.
-Dúvida que sobrar vira nova rodada do developer ou pergunta ao usuário, nunca "depois a gente vê".
+### 5. Implementation
+Create the branch (`scripts/new-branch.*`) and implement:
+- **Enxuto:** the session itself implements, in order, running the cheapest check per item. No developer: the handoff costs more than it gains.
+- **Completo:** one `developer` per stage, one at a time (model per `rules/devkit-rules.md`). Check the report against `git diff`. Commit per stage. `doubt` only on a stage marked as risky.
+Any doubt left over becomes a new round with the developer or a question to the user, never "we'll see later".
 
-### 6. Validação (loop, máx. 3 voltas)
-Repita até tudo passar ou estourar 3 voltas (estourou: leve ao usuário o que continua falhando):
-1. `scripts/checks.*` (ou o que o projeto usa). Cole o resultado real.
-2. Se o usuário quis regressão: agent `tester` (cria/atualiza personas e suíte no `AGENTS.md`, roda). Achado do tester volta como item de implementação.
-3. `goal` sobre o plano/spec. `parcial` ou `não atingiu` volta à etapa 5.
-4. **Completo, ou diff grande (~300 linhas):** `reviewer`. `CONFIRMADO` volta à etapa 5; `PLAUSÍVEL` vai ao usuário. `ponytail-review` só se o usuário pedir.
-Depois, o roteiro de verificação humana: os "como você confere" numerados. Entregue e **espere** (`AskUserQuestion`: passou / não passou, vira item novo / não vou testar agora, registrado no resumo).
+### 6. Validation (loop, max. 3 rounds)
+Repeat until everything passes or 3 rounds are exceeded (if exceeded: take to the user what is still failing):
+1. `scripts/checks.*` (or whatever the project uses). Paste the real result.
+2. If the user asked for regression: agent `tester` (creates/updates personas and suite in `AGENTS.md`, runs). Tester findings return as implementation items.
+3. `goal` on the plan/spec. `partial` or `not achieved` goes back to step 5.
+4. **Completo, or large diff (~300 lines):** `reviewer`. `CONFIRMED` goes back to step 5; `PLAUSIBLE` goes to the user. `ponytail-review` only if the user asks.
+Then, the human verification script: the numbered "how you check it" items. Deliver it and **wait** (`AskUserQuestion`: passed / failed, becomes a new item / will not test now, recorded in the summary).
 
 ### 7. Ship
-Resumo final (feito, fora do escopo, achados, se a verificação humana ocorreu). Pergunte se abre PR (`scripts/open-pr.*`); nunca push nem PR sem ok. Arquive a change do OpenSpec com ok. Feche com `ai-memory salvar`: só preferência revelada, decisão que vale além da tarefa e o que deu errado. `ai-memory consolidar` se a memória cresceu bastante.
+Final summary (done, out of scope, findings, whether the human verification happened). Ask whether to open a PR (`scripts/open-pr.*`); never push or open a PR without ok. Archive the OpenSpec change with ok. Close with `devkit-memory salvar`: only revealed preferences, decisions that matter beyond the task, and what went wrong. `devkit-memory consolidar` if memory has grown a lot.
 
-## Regras duras
+## Hard rules
 
-- Nenhum código antes da aprovação (etapa 4).
-- Um developer por vez no mesmo código.
-- Máximo 2 scouts, em paralelo.
-- PR e push só com ok explícito.
-- Idioma: o do input do usuário.
-- Não é permitido avançar etapa sem dizer em qual está.
+- No code before approval (step 4).
+- One developer at a time on the same code.
+- Maximum 2 scouts, in parallel.
+- PR and push only with explicit ok.
+- Language: the language of the user's input.
+- Do not advance a step without saying which step you are on.
