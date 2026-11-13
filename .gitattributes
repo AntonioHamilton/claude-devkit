@@ -1,0 +1,3 @@
+# O README ja estava em CRLF no historico; o resto do repo usa LF.
+# Isto evita que `git diff --check` trate o CR do README como espaco em branco.
+README.md whitespace=cr-at-eol
