@@ -343,7 +343,7 @@ coverage honesty) adapted from ideas in
 (MIT).
 
 
-## Origem
+## Origin
 
-Cópia verbatim de https://github.com/akitaonrails/my-skills (`security-audit/`, commit 2ae1eb8).
-Não editar aqui — para atualizar, puxar do upstream.
+Verbatim copy of https://github.com/akitaonrails/my-skills (`security-audit/`, commit 2ae1eb8).
+Do not edit here — to update, pull from upstream.

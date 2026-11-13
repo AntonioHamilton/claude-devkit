@@ -1,44 +1,44 @@
 ---
 name: simplify
-description: Reduzir complexidade desnecessária no que foi produzido recentemente — documento, spec, ou explicação dada ao usuário — mantendo o comportamento/conteúdo esperado. Usar depois de uma primeira versão pronta, ou antes de entregar uma explicação mais longa.
+description: Reduce unnecessary complexity in what was recently produced — document, spec, or explanation given to the user — keeping the expected behavior/content. Use after a first version is ready, or before delivering a longer explanation.
 ---
 
 # Simplify
 
-Trabalho recente acumula complexidade desnecessária. Essa skill reduz isso com disciplina, pra ficar mais claro pra quem vai usar — seja um documento, uma spec, ou uma explicação falada/escrita pro usuário.
+Recent work piles up unnecessary complexity. This skill removes it with discipline, so it becomes clearer for whoever will use it — a document, a spec, or a spoken/written explanation to the user.
 
-## Quando rodar
+## When to run
 
-- Depois que a primeira versão de algo existe (spec, documento, board).
-- Antes de entregar uma explicação passo a passo mais longa pro usuário.
+- After the first version of something exists (spec, document, board).
+- Before delivering a longer step-by-step explanation to the user.
 
-## Princípios
+## Principles
 
-- **Preservar o conteúdo/comportamento esperado.** Só a apresentação fica mais simples.
-- **Seguir as convenções do projeto e do que já existe.**
-- **Clareza acima de esperteza.**
-- **Mostrar o que foi simplificado.**
+- **Preserve the expected content/behavior.** Only the presentation gets simpler.
+- **Follow the project's conventions and what already exists.**
+- **Clarity over cleverness.**
+- **Show what was simplified.**
 
-## Processo
+## Process
 
-1. **Entender antes de mexer** (cerca de Chesterton): saber por que algo existe antes de tirar. Se não conseguir explicar o propósito, perguntar ou deixar como está.
-2. **Identificar sinais**: aninhamento profundo (3+ níveis de condição), um trecho fazendo dois trabalhos ao mesmo tempo, o mesmo fato duplicado em lugares diferentes, passo que nenhuma decisão do usuário alcança, texto que o usuário não consegue escanear rápido.
-3. **Aplicar incrementalmente**: uma simplificação por vez — nunca empacotar limpezas não relacionadas numa mudança só.
-4. **Verificar o resultado** depois de cada passo: ficou realmente mais fácil de entender? Ajuda o usuário no momento em que ele vai usar isso? É coerente com o que veio antes e depois?
+1. **Understand before changing** (Chesterton's fence): know why something exists before removing it. If you cannot explain its purpose, ask or leave it as it is.
+2. **Identify signals**: deep nesting (3+ levels of conditions), a passage doing two jobs at once, the same fact duplicated in several places, a step no user decision reaches, text the user cannot scan quickly.
+3. **Apply incrementally**: one simplification at a time — never bundle unrelated cleanups into a single change.
+4. **Verify the result** after each step: is it really easier to understand? Does it help the user at the moment they will use it? Is it consistent with what came before and after?
 
-Terminar com uma lista curta do que foi simplificado e por quê.
+End with a short list of what was simplified and why.
 
-## Quando o alvo é uma explicação pro usuário (não um documento)
+## When the target is an explanation for the user (not a document)
 
-Adaptar o processo: em vez de revisar arquivo, revisar a explicação antes de enviar.
-- Cortar todo passo que não é essencial pro usuário conseguir agir.
-- Ajustar a linguagem ao nível de conhecimento técnico dele — sem jargão sem exemplo concreto.
-- Preferir frase curta e direta a parágrafo explicativo.
+Adapt the process: instead of reviewing a file, review the explanation before sending it.
+- Cut every step that is not essential for the user to act.
+- Adjust the language to the user's level of technical knowledge — no jargon without a concrete example.
+- Prefer short, direct sentences over explanatory paragraphs.
 
-## No contexto do devkit (pipeline do manager)
+## In the devkit context (manager pipeline)
 
-O alvo aqui é **a spec e a explicação entregue ao usuário**, não o código já aprovado.
+The target here is **the spec and the explanation delivered to the user**, not the code already approved.
 
-- No **Gate 1**, rodar depois dos checks: cortar passo não-essencial da spec, remover fato duplicado entre estágios, ajustar a linguagem ao nível técnico de quem vai ler.
-- Nunca usar jargão sem exemplo concreto.
-- Simplificar apresentação nunca pode mudar comportamento acordado na spec. Se for preciso mudar comportamento, isso é mudança de spec — voltar pro Approval Gate.
+- At **Gate 1**, run after the checks: cut non-essential steps from the spec, remove facts duplicated between stages, adjust the language to the technical level of the reader.
+- Never use jargon without a concrete example.
+- Simplifying the presentation must never change the behavior agreed in the spec. If behavior has to change, that is a spec change — go back to the Approval Gate.

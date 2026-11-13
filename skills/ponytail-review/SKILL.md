@@ -56,7 +56,7 @@ self-check is the ponytail minimum, not bloat, never flag it for deletion.
 Does not apply the fixes, only lists them.
 "stop ponytail-review" or "normal mode": revert to verbose review style.
 
-## Origem
+## Origin
 
-Cópia verbatim de https://github.com/DietrichGebert/ponytail (`skills/ponytail-review/SKILL.md`).
-Não editar aqui — para atualizar, puxar do upstream.
+Verbatim copy of https://github.com/DietrichGebert/ponytail (`skills/ponytail-review/SKILL.md`).
+Do not edit here — to update, pull from upstream.

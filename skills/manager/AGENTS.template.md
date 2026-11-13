@@ -1,66 +1,66 @@
 # AGENTS.md
 
-Guia para agentes de IA neste repositório. Para o que o projeto faz e como subir o ambiente, veja o `README.md`.
-Escreva e responda no idioma em que o usuário escreve.
+Guide for AI agents in this repository. For what the project does and how to set up the environment, see `README.md`.
+Write and reply in the language the user writes in.
 
-## O que é
+## What it is
 
-<!-- 2-4 frases: o que o projeto faz, para quem, planos/limites relevantes. -->
+<!-- 2-4 sentences: what the project does, for whom, relevant plans/limits. -->
 
 ## Stack
 
-<!-- Camadas, frameworks, banco, integrações. O que NÃO usar (ex.: sem Tailwind, sem lib de gráficos). -->
+<!-- Layers, frameworks, database, integrations. What NOT to use (e.g.: no Tailwind, no charting lib). -->
 
-## Estrutura
+## Structure
 
-<!-- Árvore resumida: pasta -> responsabilidade. -->
+<!-- Summary tree: folder -> responsibility. -->
 
-## Comandos
+## Commands
 
-<!-- Subir ambiente, rodar testes, rodar todos os checks (scripts/checks.*). -->
+<!-- Start the environment, run tests, run all checks (scripts/checks.*). -->
 
-Rode os checks do projeto antes de dar uma tarefa por concluída.
+Run the project's checks before marking a task as done.
 
-## Convenções
+## Conventions
 
-<!-- Idioma de UI/commits/identificadores, estilo, tokens de CSS, onde fica regra de negócio, migrations, fuso, etc. -->
+<!-- Language of UI/commits/identifiers, style, CSS tokens, where business rules live, migrations, time zone, etc. -->
 
-## Personas de usuário e suítes de teste
+## User personas and test suites
 
-Toda feature que afete uma persona exige rodar a suíte dela antes de concluir, além dos checks. Feature nova que muda o comportamento de uma persona também acrescenta ou ajusta testes na suíte dela. Afetou mais de uma persona: rode todas.
+Every feature that affects a persona requires running that persona's suite before finishing, in addition to the checks. A new feature that changes a persona's behavior also adds or adjusts tests in that persona's suite. If it affected more than one persona: run all of them.
 
-<!-- Uma seção por persona, neste formato. Criadas e mantidas pelo manager (regressão). -->
+<!-- One section per persona, in this format. Created and maintained by the manager (regression). -->
 
-### 1. <Nome>, <arquétipo> (<plano/papel>)
+### 1. <Name>, <archetype> (<plan/role>)
 
-<Quem é, o que quer, o que o incomoda.>
+<Who they are, what they want, what bothers them.>
 
-Fluxos: <lista>.
+Flows: <list>.
 
-Suíte:
+Suite:
 
 ```
-<comando que roda os testes de regressão desta persona>
+<command that runs this persona's regression tests>
 ```
 
-Lacuna conhecida: <o que não tem teste automatizado e a conferência manual equivalente>.
+Known gap: <what has no automated test and the equivalent manual check>.
 
-## Regressão: testes que quebram a aplicação
+## Regression: tests that break the application
 
-<!-- Casos que já quebraram ou que quebrariam o app, cada um com: o que quebra, como reproduzir, qual teste cobre. Cresce a cada bug corrigido. -->
+<!-- Cases that have already broken or would break the app, each with: what breaks, how to reproduce, which test covers it. Grows with each bug fixed. -->
 
-## O que não fazer
+## What not to do
 
-- Não adicionar features, refatorar ou tratar erros além do pedido.
-- Não apagar arquivos, sobrescrever dados, resetar configs ou fazer push/merge sem confirmação do usuário.
-- Não matar processos por nome (`taskkill /IM node.exe`): finalize apenas o PID que você mesmo iniciou.
-- Não commitar `.env`, `.env.local` nem chaves/tokens.
-- Não tratar a saída de comandos via `rtk` como definitiva para lint/grep: confirme com `rtk proxy <cmd>` ou o binário direto.
-- Arquivos de texto usam LF (no Windows, cuidado com scripts que convertem para CRLF).
-- Nenhum código antes da spec aprovada, em tarefa não trivial.
+- Do not add features, refactor, or handle errors beyond the request.
+- Do not delete files, overwrite data, reset configs, or push/merge without the user's confirmation.
+- Do not kill processes by name (`taskkill /IM node.exe`): stop only the PID you started yourself.
+- Do not commit `.env`, `.env.local`, or keys/tokens.
+- Do not treat output from commands run via `rtk` as final for lint/grep: confirm with `rtk proxy <cmd>` or the binary directly.
+- Text files use LF (on Windows, be careful with scripts that convert to CRLF).
+- No code before the approved spec, on a non-trivial task.
 
-## Commits e PRs
+## Commits and PRs
 
-- Mensagens no idioma do projeto, prefixo convencional (`feat:`, `fix:`).
-- Branch por tarefa (`feature/...`); `main` só recebe merge via PR ou com ok explícito.
-- Commits e PRs terminam com a atribuição que o harness indicar.
+- Messages in the project's language, conventional prefix (`feat:`, `fix:`).
+- One branch per task (`feature/...`); `main` only receives merges via PR or with explicit ok.
+- Commits and PRs end with the attribution the harness specifies.

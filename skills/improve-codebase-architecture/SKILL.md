@@ -71,7 +71,7 @@ Side effects happen inline as decisions crystallize:
 - **Want to explore alternative interfaces for the deepened module?** See [INTERFACE-DESIGN.md](INTERFACE-DESIGN.md).
 
 
-## Origem
+## Origin
 
-Cópia verbatim de https://github.com/akitaonrails/my-skills (`improve-codebase-architecture/`, commit 2ae1eb8).
-Não editar aqui — para atualizar, puxar do upstream.
+Verbatim copy of https://github.com/akitaonrails/my-skills (`improve-codebase-architecture/`, commit 2ae1eb8).
+Do not edit here — to update, pull from upstream.

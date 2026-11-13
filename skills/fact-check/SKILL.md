@@ -204,7 +204,7 @@ fixed article and the fix is undecided.
   key, delete the run dir, and note it in the report.
 
 
-## Origem
+## Origin
 
-Cópia verbatim de https://github.com/akitaonrails/my-skills (`fact-check/`, commit 2ae1eb8).
-Não editar aqui — para atualizar, puxar do upstream.
+Verbatim copy of https://github.com/akitaonrails/my-skills (`fact-check/`, commit 2ae1eb8).
+Do not edit here — to update, pull from upstream.

@@ -88,7 +88,7 @@ Example destructive op:
 ## Boundaries
 
 Persisted outside chat: write normal prose code, comments, commits, docs, issue/PR/MR/defect/ticket/bug-report text, memory files, third-party messages (/caveman-compress exempt). "Open a defect" or "file a bug" mean the same as "open issue": body go to other humans, so body normal English. "stop caveman" or "normal mode": revert. Level persist until changed or session end.
-## Origem
+## Origin
 
-Cópia verbatim de https://github.com/JuliusBrussee/caveman (`skills/caveman/SKILL.md`).
-Não editar aqui — para atualizar, puxar do upstream ou usar `npx skills add JuliusBrussee/caveman`.
+Verbatim copy of https://github.com/JuliusBrussee/caveman (`skills/caveman/SKILL.md`).
+Do not edit here — to update, pull from upstream or use `npx skills add JuliusBrussee/caveman`.

@@ -1,51 +1,51 @@
 ---
 name: grill-with-docs
-description: Entrevista o usuário sobre um plano até chegar em entendimento compartilhado, e registra no repositório as decisões difíceis de reverter (arquitetura, modelagem de banco, design de API, segurança) como ADR em docs/adr/. Usar na etapa de Grill do manager ou quando o usuário disser "grill me with docs".
+description: Interviews the user about a plan until reaching shared understanding, and records in the repository the decisions that are hard to reverse (architecture, database modeling, API design, security) as ADRs in docs/adr/. Use at the manager's Grill stage or when the user says "grill me with docs".
 ---
 
-Faça o que a skill `grill-me` faz: entreviste o usuário sobre cada ramo do plano, uma pergunta por vez, cada uma com sua recomendação. O que o código ou os ADRs existentes já respondem, você lê em vez de perguntar.
+Do what the `grill-me` skill does: interview the user about each branch of the plan, one question at a time, each with your recommendation. What the code or the existing ADRs already answer, you read instead of asking.
 
-A diferença: enquanto a conversa avança, você mantém a memória de decisões do projeto.
+The difference: as the conversation moves forward, you keep the memory of the project's decisions.
 
-## Antes de perguntar
+## Before asking
 
-Leia `docs/adr/` (se existir) e `GLOSSARY.md`. Decisão já registrada não se pergunta de novo; se o plano a contradiz, aponte o ADR e pergunte se ele deve ser substituído.
+Read `docs/adr/` (if it exists) and `GLOSSARY.md`. A decision already recorded is not asked again; if the plan contradicts it, point to the ADR and ask whether it should be replaced.
 
-## Quando criar um ADR
+## When to create an ADR
 
-Só quando a decisão cumpre os três critérios ao mesmo tempo:
+Only when the decision meets all three criteria at the same time:
 
-1. É difícil de reverter.
-2. Seria surpreendente para quem chega sem contexto.
-3. Resultou de um trade-off real, com alternativa descartada.
+1. It is hard to reverse.
+2. It would be surprising to someone arriving without context.
+3. It came from a real trade-off, with a discarded alternative.
 
-Foco do que costuma qualificar: arquitetura, modelagem de banco, design de API, segurança. Nome de variável, escolha de lib trocável e detalhe de UI não qualificam. Muita sessão termina com zero ADR, e está certo.
+What usually qualifies: architecture, database modeling, API design, security. Variable names, a swappable library choice, and UI details do not qualify. Many sessions end with zero ADRs, and that is correct.
 
-## Como registrar
+## How to record it
 
-Arquivo `docs/adr/NNNN-<slug>.md` (numeração sequencial, 4 dígitos), curto:
+File `docs/adr/NNNN-<slug>.md` (sequential numbering, 4 digits), short:
 
 ```
-# NNNN. <decisão em uma frase>
+# NNNN. <decision in one sentence>
 
-- Data: <AAAA-MM-DD>
-- Status: aceita | substituída por NNNN
+- Date: <YYYY-MM-DD>
+- Status: accepted | superseded by NNNN
 
-## Contexto
-O que forçou a decisão.
+## Context
+What forced the decision.
 
-## Decisão
-O que foi escolhido.
+## Decision
+What was chosen.
 
-## Alternativas descartadas
-Cada uma com o motivo.
+## Discarded alternatives
+Each one, with its reason.
 
-## Consequências
-O que fica mais fácil, o que fica mais difícil de mudar.
+## Consequences
+What becomes easier, what becomes harder to change.
 ```
 
-Mostre o ADR ao usuário e grave só depois do ok. Termo de domínio novo e acordado entra em `GLOSSARY.md`.
+Show the ADR to the user and write it only after the ok. A new domain term that was agreed on goes into `GLOSSARY.md`.
 
-## Diferença para a spec
+## Difference from the spec
 
-ADR guarda o **porquê** de decisões duradouras e vive para sempre no repo. A spec descreve **o que está sendo feito agora** e é arquivada ao fim. Não copie o conteúdo de uma na outra: a spec referencia o ADR.
+An ADR keeps the **why** of lasting decisions and lives in the repo forever. The spec describes **what is being done now** and is archived at the end. Do not copy the content of one into the other: the spec references the ADR.

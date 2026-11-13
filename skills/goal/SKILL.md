@@ -1,27 +1,27 @@
 ---
 name: goal
-description: Verifica se a implementação feita está de acordo com a spec e atingiu o objetivo pedido. Usar depois do stage loop, ou quando o usuário disser "/goal" ou "isso atingiu o objetivo?".
+description: Checks whether the implementation matches the spec and achieved the requested goal. Use after the stage loop, or when the user says "/goal" or "isso atingiu o objetivo?".
 ---
 
 # Goal
 
-Responde uma pergunta: **o que foi construído cumpre a spec e o objetivo original?** Não reimplementa nada e não corrige; só veredita.
+Answers one question: **does what was built meet the spec and the original goal?** It does not reimplement anything or fix anything; it only rules.
 
-## Passos
+## Steps
 
-1. Ache a spec da mudança em andamento: a pasta de change do OpenSpec (`openspec/changes/<slug>/`: `proposal.md`, `specs/`, `design.md`, `tasks.md`). Sem spec, pergunte ao usuário qual é o objetivo e use isso.
-2. Se o CLI `openspec` existir, rode a validação dele (`openspec validate <slug>`) e cole o resultado real.
-3. Para cada requisito/cenário da spec e cada item de `tasks.md`, ache a evidência no código ou num teste (`git diff <default>...HEAD`). Marque `atendido`, `parcial` ou `não atendido`, com `arquivo:linha`.
-4. Releia o objetivo da `proposal.md` (o porquê, não só os requisitos). Pode estar tudo atendido e o objetivo não ter sido atingido; diga isso se for o caso.
-5. Procure escopo a mais: mudança no diff que nenhum requisito pede.
+1. Find the spec for the change in progress: the OpenSpec change folder (`openspec/changes/<slug>/`: `proposal.md`, `specs/`, `design.md`, `tasks.md`). Without a spec, ask the user what the goal is and use that.
+2. If the `openspec` CLI exists, run its validation (`openspec validate <slug>`) and paste the real result.
+3. For each requirement/scenario in the spec and each item in `tasks.md`, find the evidence in the code or in a test (`git diff <default>...HEAD`). Mark it `met`, `partial` or `not met`, with `file:line`.
+4. Re-read the goal in `proposal.md` (the why, not just the requirements). Everything may be met and the goal still not achieved; say so if that is the case.
+5. Look for extra scope: a change in the diff that no requirement asks for.
 
-## Saída
+## Output
 
 ```
-Veredito: atingiu | parcial | não atingiu
-Requisitos: <n atendidos>/<n total>
-Pendências: <lista com arquivo:linha>
-Escopo a mais: <lista ou "nenhum">
+Verdict: achieved | partial | not achieved
+Requirements: <n met>/<n total>
+Pending: <list with file:line>
+Extra scope: <list or "none">
 ```
 
-Pendência `não atendido` volta para o stage loop como estágio novo. Não declare "atingiu" sem evidência para cada requisito.
+A pending item marked `not met` goes back to the stage loop as a new stage. Do not declare "achieved" without evidence for each requirement.

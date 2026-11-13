@@ -1,42 +1,42 @@
-# RTK — redução de tokens de saída do shell
+# RTK — shell output token reduction
 
-**Instalação obrigatória** — passo 4 do README, não um extra.
+**Mandatory installation** — step 4 of the README, not an extra.
 
-**RTK não é uma skill.** É um binário Rust (`rtk`) que fica entre o agent e o shell e comprime a saída dos comandos antes de o modelo ler: `ls`, `cat`, `grep`, `git status/diff/log`, `npm test`, `pytest`, `cargo test`, `docker ps` e ~100 outros. Por isso ele mora em `tools/`, não em `skills/` — não há `SKILL.md` para copiar.
+**RTK is not a skill.** It is a Rust binary (`rtk`) that sits between the agent and the shell and compresses command output before the model reads it: `ls`, `cat`, `grep`, `git status/diff/log`, `npm test`, `pytest`, `cargo test`, `docker ps` and ~100 others. That is why it lives in `tools/`, not in `skills/` — there is no `SKILL.md` to copy.
 
-Fonte: https://github.com/rtk-ai/rtk (Apache-2.0)
+Source: https://github.com/rtk-ai/rtk (Apache-2.0)
 
-## O que ele faz de verdade
+## What it actually does
 
-Corta até 90% da **saída de bash** que o agent lê. Isso não é 90% da conta: saída de bash é uma parte dos tokens de entrada, e entrada é uma parte do custo. Os percentuais que ele reporta são confiáveis; os números absolutos de token são estimados por `bytes / 4`.
+It cuts up to 90% of the **bash output** that the agent reads. That is not 90% of the bill: bash output is one part of the input tokens, and input is one part of the cost. The percentages it reports are reliable; the absolute token numbers are estimated by `bytes / 4`.
 
-Limite importante: o hook só intercepta chamadas da ferramenta **Bash**. `Read`, `Grep` e `Glob` do Claude Code não passam por ele. Para ganhar com RTK nesses casos, use comando de shell (`cat`, `rg`, `find`) ou chame `rtk read` / `rtk grep` / `rtk find` direto.
+Important limit: the hook only intercepts calls to the **Bash** tool. Claude Code's `Read`, `Grep` and `Glob` do not go through it. To gain from RTK in those cases, use a shell command (`cat`, `rg`, `find`) or call `rtk read` / `rtk grep` / `rtk find` directly.
 
-> Isso combina com a regra de auto mode do devkit — trabalhar via Bash em vez das ferramentas dedicadas — mas é uma troca: com RTK ligado, `cat` fica mais barato que `Read`; sem RTK, não fica.
+> This fits the devkit's auto mode rule — working via Bash instead of the dedicated tools — but it is a trade-off: with RTK on, `cat` gets cheaper than `Read`; without RTK, it does not.
 
-## Instalar
+## Install
 
 macOS / Linux:
 
 ```bash
 brew install rtk
-# ou
+# or
 curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
 ```
 
-Windows: baixar o zip da release, colocar `rtk.exe` no PATH (ex.: `C:\Users\<voce>\.local\bin`) e rodar de Prompt/PowerShell/Windows Terminal — não dar duplo clique no `.exe`. Precisa de `ripgrep` no PATH (`winget install BurntSushi.ripgrep.MSVC`).
+Windows: download the release zip, put `rtk.exe` on the PATH (e.g.: `C:\Users\<voce>\.local\bin`) and run it from Prompt/PowerShell/Windows Terminal — do not double-click the `.exe`. It needs `ripgrep` on the PATH (`winget install BurntSushi.ripgrep.MSVC`).
 
-Ligar o hook no Claude Code:
+Turn on the hook in Claude Code:
 
 ```bash
-rtk init -g       # instala o hook PreToolUse + RTK.md
-rtk init --show   # verificar
+rtk init -g       # installs the PreToolUse hook + RTK.md
+rtk init --show   # verify
 ```
 
-Depois disso, **reiniciar o Claude Code**.
+After that, **restart Claude Code**.
 
-## Cuidados
+## Caveats
 
-- `rtk init -g` **escreve no `~/.claude/settings.json`** do usuário (hook global). Afeta todas as sessões dele, não só este projeto. O `install.sh`/`install.ps1` não roda isso — quem instala o kit roda à mão, avisando o usuário do que muda na config antes. Se ele recusar, pare e reporte a instalação como incompleta.
-- Colisão de nome no crates.io: existe outro pacote `rtk` (Rust Type Kit). Se `rtk gain` falhar, foi o pacote errado — use `cargo install --git https://github.com/rtk-ai/rtk`.
-- Não quebra o prompt cache: o filtro roda uma vez por comando e o resultado vai pro histórico normalmente.
+- `rtk init -g` **writes to the user's `~/.claude/settings.json`** (global hook). It affects all of their sessions, not just this project. `install.sh`/`install.ps1` do not run this — whoever installs the kit runs it by hand, warning the user first about what changes in the config. If they refuse, stop and report the installation as incomplete.
+- Name collision on crates.io: there is another package named `rtk` (Rust Type Kit). If `rtk gain` fails, it was the wrong package — use `cargo install --git https://github.com/rtk-ai/rtk`.
+- It does not break the prompt cache: the filter runs once per command and the result goes into the history normally.

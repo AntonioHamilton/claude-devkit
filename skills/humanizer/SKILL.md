@@ -374,7 +374,7 @@ Keep the details that carry the writer's voice unless they hurt the meaning:
 The patterns come from Wikipedia's ["Signs of AI writing"](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup, and from reviews of AI-generated text on Wikipedia and elsewhere.
 
 
-## Origem
+## Origin
 
-Cópia verbatim de https://github.com/akitaonrails/my-skills (`humanizer/`, commit 2ae1eb8) (vendorizada por ele de blader/humanizer 3.0.0, MIT).
-Não editar aqui — para atualizar, puxar do upstream.
+Verbatim copy of https://github.com/akitaonrails/my-skills (`humanizer/`, commit 2ae1eb8) (vendored there from blader/humanizer 3.0.0, MIT).
+Do not edit here — to update, pull from upstream.

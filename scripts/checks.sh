@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Roda lint, teste e build do projeto, detectando o gerenciador. Usado no Gate 1.
-# Uso: scripts/checks.sh [caminho-do-projeto]
+# Runs the project's lint, test and build, detecting the package manager. Used at Gate 1.
+# Usage: scripts/checks.sh [project-path]
 set -uo pipefail
 cd "${1:-.}" || exit 1
 
@@ -30,10 +30,10 @@ elif [ -f Cargo.toml ]; then
   run cargo clippy -- -D warnings
   run cargo test
 else
-  echo "Nenhum projeto reconhecido (package.json, pyproject.toml, go.mod, Cargo.toml)."
-  echo "Rode os checks do projeto manualmente e cole o resultado real."
+  echo "No recognized project (package.json, pyproject.toml, go.mod, Cargo.toml)."
+  echo "Run the project's checks manually and paste the real result."
   exit 2
 fi
 
-[ "$fail" -eq 0 ] && echo "CHECKS: OK" || echo "CHECKS: FALHOU"
+[ "$fail" -eq 0 ] && echo "CHECKS: OK" || echo "CHECKS: FAILED"
 exit "$fail"

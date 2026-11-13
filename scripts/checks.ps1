@@ -1,5 +1,5 @@
-# Roda lint, teste e build do projeto, detectando o gerenciador. Usado no Gate 1.
-# Uso: .\scripts\checks.ps1 [caminho]
+# Runs the project's lint, test and build, detecting the package manager. Used at Gate 1.
+# Usage: .\scripts\checks.ps1 [path]
 param([string]$Path = ".")
 Set-Location $Path
 $fail = 0
@@ -35,9 +35,9 @@ elseif (Test-Path Cargo.toml) {
     Run-Step "cargo" @("clippy","--","-D","warnings"); Run-Step "cargo" @("test")
 }
 else {
-    Write-Output "Nenhum projeto reconhecido. Rode os checks do projeto manualmente e cole o resultado real."
+    Write-Output "No recognized project. Run the project's checks manually and paste the real result."
     exit 2
 }
 
-if ($fail -eq 0) { Write-Output "CHECKS: OK" } else { Write-Output "CHECKS: FALHOU" }
+if ($fail -eq 0) { Write-Output "CHECKS: OK" } else { Write-Output "CHECKS: FAILED" }
 exit $fail

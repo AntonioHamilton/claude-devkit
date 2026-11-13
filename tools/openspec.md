@@ -1,40 +1,40 @@
 # OpenSpec
 
-Framework de spec-driven development. O manager o usa na etapa 3 (modo completo) no lugar do antigo `templates/spec.md`. Site: https://openspec.dev/
+Spec-driven development framework. The manager uses it in step 3 (full mode) in place of the old `templates/spec.md`. Site: https://openspec.dev/
 
-## Instalar
+## Install
 
 ```bash
 npm install -g @fission-ai/openspec@latest
 openspec --version
 ```
 
-Também funciona com pnpm, bun, yarn e nix. Requer Node.
+Also works with pnpm, bun, yarn and nix. Requires Node.
 
-## Ligar num projeto
+## Turn on in a project
 
-Na raiz do projeto, uma vez:
+At the project root, once:
 
 ```bash
 openspec init
 ```
 
-Escolha Claude Code quando ele perguntar as ferramentas: ele cria a pasta `openspec/` e os slash commands do projeto. Isso escreve no repo do usuário: **avise antes de rodar** e não commite sem ele pedir.
+Choose Claude Code when it asks for the tools: it creates the `openspec/` folder and the project's slash commands. This writes to the user's repo: **warn before running** and do not commit unless they ask.
 
-## Estrutura de uma mudança
+## Structure of a change
 
-Cada mudança vive em `openspec/changes/<slug>/`:
+Each change lives in `openspec/changes/<slug>/`:
 
-- `proposal.md` — por que e o que muda.
-- `specs/` — requisitos e cenários.
-- `design.md` — como será feito.
-- `tasks.md` — checklist de implementação (os estágios do manager).
+- `proposal.md` — why and what changes.
+- `specs/` — requirements and scenarios.
+- `design.md` — how it will be done.
+- `tasks.md` — implementation checklist (the manager's stages).
 
-Fluxo do OpenSpec: explore, propose, apply, verify, archive. Os nomes exatos dos slash commands são os que `openspec init` gerar; use esses.
+OpenSpec flow: explore, propose, apply, verify, archive. The exact slash command names are the ones `openspec init` generates; use those.
 
-## Como o manager usa
+## How the manager uses it
 
-- Etapa 3: gera a change (propose) em vez de escrever `specs/<slug>.md`. O campo **Como você confere** de cada estágio vai em `tasks.md`.
-- Etapa 6: skill `goal` roda `openspec validate`/verify.
-- Etapa 7: ao fim, `archive`.
-- Projeto sem `openspec/` e sem ok do usuário para o `init`: pare e pergunte; não volte para o template antigo em silêncio.
+- Step 3: generates the change (propose) instead of writing `specs/<slug>.md`. The **How to verify** field of each stage goes in `tasks.md`.
+- Step 6: the `goal` skill runs `openspec validate`/verify.
+- Step 7: at the end, `archive`.
+- Project without `openspec/` and without the user's ok for `init`: stop and ask; do not silently fall back to the old template.

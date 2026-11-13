@@ -1,13 +1,13 @@
-# Cria uma branch a partir da default do repo. Usado na etapa Branch do manager.
-# Uso: .\scripts\new-branch.ps1 feat/nome-da-tarefa
+# Creates a branch from the repo's default branch. Used in the manager's Branch step.
+# Usage: .\scripts\new-branch.ps1 feat/task-name
 param([Parameter(Mandatory=$true)][string]$Name)
 
 git rev-parse --is-inside-work-tree | Out-Null
-if (-not $?) { Write-Output "Nao e um repositorio git."; exit 1 }
+if (-not $?) { Write-Output "Not a git repository."; exit 1 }
 
 $dirty = git status --porcelain
 if ($dirty) {
-    Write-Output "Ha mudancas nao commitadas. Resolva antes - o manager deve perguntar ao usuario."
+    Write-Output "There are uncommitted changes. Resolve them first - the manager must ask the user."
     Write-Output $dirty
     exit 1
 }
@@ -19,6 +19,6 @@ if (-not $?) { $base = "master" }
 
 git switch $base
 git pull --ff-only
-if (-not $?) { Write-Output "aviso: pull falhou, seguindo com o estado local de $base" }
+if (-not $?) { Write-Output "warning: pull failed, continuing with the local state of $base" }
 git switch -c $Name
-Write-Output "Branch $Name criada a partir de $base."
+Write-Output "Branch $Name created from $base."

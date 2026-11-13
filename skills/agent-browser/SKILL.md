@@ -52,7 +52,7 @@ Run `agent-browser skills list` to see everything available on the installed ver
 The dashboard runs independently of browser sessions on port 4848 and can also be opened through a proxied or forwarded URL such as `https://dashboard.agent-browser.localhost`. Agents should stay on the dashboard origin: session tabs, status, and stream traffic are proxied internally, so session ports do not need to be exposed.
 
 
-## Origem
+## Origin
 
-Cópia verbatim de https://github.com/akitaonrails/my-skills (`agent-browser/`, commit 2ae1eb8).
-Não editar aqui — para atualizar, puxar do upstream.
+Verbatim copy of https://github.com/akitaonrails/my-skills (`agent-browser/`, commit 2ae1eb8).
+Do not edit here — to update, pull from upstream.

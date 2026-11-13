@@ -111,7 +111,7 @@ project checks directly. For larger multi-phase work, let this skill establish
 the evidence path that later work follows.
 
 
-## Origem
+## Origin
 
-Cópia verbatim de https://github.com/akitaonrails/my-skills (`verification-planning/`, commit 2ae1eb8).
-Não editar aqui — para atualizar, puxar do upstream.
+Verbatim copy of https://github.com/akitaonrails/my-skills (`verification-planning/`, commit 2ae1eb8).
+Do not edit here — to update, pull from upstream.

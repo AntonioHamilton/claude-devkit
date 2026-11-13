@@ -1,30 +1,30 @@
 # OpenUI
 
-Padrão aberto de UI generativa: o modelo descreve a interface em OpenUI Lang e o app renderiza com os componentes e o design system do projeto. Serve para dashboards, formulários, tabelas, gráficos e telas, não só chat. Site: https://www.openui.com/ · Código: https://github.com/thesysdev/openui
+Open pattern for generative UI: the model describes the interface in OpenUI Lang and the app renders it with the project's components and design system. It serves dashboards, forms, tables, charts and screens, not just chat. Site: https://www.openui.com/ · Code: https://github.com/thesysdev/openui
 
-Opcional. Só faz sentido em projeto que tenha (ou queira) UI gerada por IA.
+Optional. It only makes sense in a project that has (or wants) AI-generated UI.
 
-## Instalar
+## Install
 
-Não há instalação global: o CLI roda via `npx`, sem pacote para instalar antes (requer Node).
+There is no global install: the CLI runs via `npx`, with no package to install beforehand (requires Node).
 
-Projeto novo:
+New project:
 
 ```bash
 npx @openuidev/cli@latest create
 ```
 
-Projeto existente, para agentes de código (Claude Code, Codex, Cursor) saberem usar o OpenUI:
+Existing project, so that coding agents (Claude Code, Codex, Cursor) know how to use OpenUI:
 
 ```bash
 npx @openuidev/cli@latest setup-agent
 ```
 
-`setup-agent` cria ou **edita o `AGENTS.md` do projeto**, acrescentando as instruções do OpenUI. Pode ser rodado de novo para atualizar. Projetos criados com `create` já vêm com isso.
+`setup-agent` creates or **edits the project's `AGENTS.md`**, appending the OpenUI instructions. It can be run again to update. Projects created with `create` already come with this.
 
-## Regras para o agent
+## Rules for the agent
 
-- **Avise antes de rodar**: os dois comandos escrevem no repositório do usuário (`setup-agent` altera o `AGENTS.md`). Peça ok.
-- Rode a partir da raiz do projeto, depois do `AGENTS.md` base do devkit existir, para o OpenUI acrescentar em vez de criar um arquivo paralelo.
-- Não commite sem o usuário pedir.
-- A página oficial não documenta MCP nem plugin do Claude Code; não invente. Dúvida de uso: consulte a documentação em /docs do site.
+- **Warn before running**: both commands write to the user's repository (`setup-agent` changes `AGENTS.md`). Ask for ok.
+- Run from the project root, after the devkit's base `AGENTS.md` exists, so that OpenUI appends instead of creating a parallel file.
+- Do not commit unless the user asks.
+- The official page does not document an MCP or a Claude Code plugin; do not make one up. For usage questions, check the documentation in /docs on the site.

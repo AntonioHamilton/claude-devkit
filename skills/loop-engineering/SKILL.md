@@ -30,7 +30,7 @@ description: Loop engineering runtime Grill + Monitor
 - BackgroundJobBoard signals (totalErrors, timeoutCount) are already baked into the runtime.
 
 
-## Origem
+## Origin
 
-Cópia verbatim de https://github.com/akitaonrails/my-skills (`loop-engineering/`, commit 2ae1eb8) (fork de oh-my-opencode-slim; depende do runtime do OpenCode).
-Não editar aqui — para atualizar, puxar do upstream.
+Verbatim copy of https://github.com/akitaonrails/my-skills (`loop-engineering/`, commit 2ae1eb8) (fork of oh-my-opencode-slim; depends on the OpenCode runtime).
+Do not edit here — to update, pull from upstream.
