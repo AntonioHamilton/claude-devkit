@@ -1,0 +1,19 @@
+team skill dirs in ~/.config/opencode/skills:
+backend-team
+frontend-team
+game-dev-team
+react-native-team
+regression-team
+
+team-routing references:
+team-routing:53: ## Times
+team-routing:59: | Godot | `game-dev-team` | `project.godot`, `*.tscn`, `*.gd` |
+team-routing:60: | Frontend web | `frontend-team` | React/Next/Vue/Angular, `src/`, CSS |
+team-routing:61: | Backend/API | `backend-team` | API, banco, migração, auth |
+team-routing:62: | React Native/Expo | `react-native-team` | `react-native`, `expo`, `android/`, `ios/` |
+team-routing:63: | Regressão/QA | `regression-team` | bug confirmado, fluxo crítico sem cobertura |
+team-routing:95: - **Time é skill de coordenação, não plugin.** Carregue `game-dev-team`, `frontend-team`, `backend-team`, `react-native-team` ou `regression-team`; não registre agente novo para representar time.
+
+global instructions references:
+devkit-opencode:36: ### Skills de time
+devkit-opencode:38: A composição do time — quem faz o quê, em que ordem, o que não delegar e como validar — fica em cinco skills independentes: `game-dev-team`, `frontend-team`, `backend-team`, `react-native-team` e `regression-team`.

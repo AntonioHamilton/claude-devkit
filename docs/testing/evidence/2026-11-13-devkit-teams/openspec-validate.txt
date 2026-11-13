@@ -1,0 +1,3 @@
+command: npx -y @fission-ai/openspec@latest validate devkit-team-skills --type change --strict
+Change 'devkit-team-skills' is valid
+exit: 0

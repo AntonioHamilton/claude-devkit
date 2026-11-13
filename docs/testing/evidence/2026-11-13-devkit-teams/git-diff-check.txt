@@ -1,0 +1,26 @@
+command: git diff --check
+exit: 0
+
+git status --short
+ M README.md
+ M rules/devkit-rules.md
+ M skills/manager/SKILL.md
+?? .agents/
+?? .claude/
+?? .gitattributes
+?? AGENTS.md
+?? docs/
+?? openspec/
+?? scripts/check-design-reference-workflow.ps1
+?? scripts/check-team-skills.ps1
+?? scripts/godot-preflight.ps1
+?? skills/architecture-diagramming/
+?? skills/backend-team/
+?? skills/design-reference-workflow/
+?? skills/frontend-team/
+?? skills/game-dev-team/
+?? skills/game-production/
+?? skills/image-prompt-handoff/
+?? skills/react-native-team/
+?? skills/regression-team/
+?? tests/

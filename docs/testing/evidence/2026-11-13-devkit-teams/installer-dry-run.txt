@@ -1,0 +1,46 @@
+﻿== installed ==
+  skill:agent-browser [dry-run]
+  skill:ai-effort [dry-run]
+  skill:ai-stack [dry-run]
+  skill:architecture-diagramming [dry-run]
+  skill:backend-team [dry-run]
+  skill:caveman [dry-run]
+  skill:clonedeps [dry-run]
+  skill:codemap [dry-run]
+  skill:deepwork [dry-run]
+  skill:design-reference-workflow [dry-run]
+  skill:devkit-memory [dry-run]
+  skill:doubt [dry-run]
+  skill:fact-check [dry-run]
+  skill:frontend-team [dry-run]
+  skill:game-dev-team [dry-run]
+  skill:game-production [dry-run]
+  skill:goal [dry-run]
+  skill:grill-me [dry-run]
+  skill:grill-with-docs [dry-run]
+  skill:humanizer [dry-run]
+  skill:image-prompt-handoff [dry-run]
+  skill:improve-codebase-architecture [dry-run]
+  skill:loop-engineering [dry-run]
+  skill:manager [dry-run]
+  skill:ponytail-review [dry-run]
+  skill:pr-bump [dry-run]
+  skill:react-native-team [dry-run]
+  skill:reflect [dry-run]
+  skill:regression-team [dry-run]
+  skill:release [dry-run]
+  skill:security-audit [dry-run]
+  skill:simplify [dry-run]
+  skill:verification-planning [dry-run]
+  skill:worktrees [dry-run]
+  agent:developer [dry-run]
+  agent:reviewer [dry-run]
+  agent:scout [dry-run]
+  agent:tester [dry-run]
+== skipped ==
+  (none)
+== pending ==
+  (none)
+
+The Chrome MCP is not installed by this script. See mcp\README.md and pick option A or B.
+Destination: C:\Users\Anton\AppData\Local\Temp\claude-devkit-test

@@ -1,0 +1,18 @@
+command: opencode run --model opencode-go/mimo-v2.6-flash "Liste apenas os IDs das skills disponiveis que terminam com '-team'..."
+cwd: C:\Users\Anton\AppData\Local\Temp\opencode\teams-smoke
+
+
+> build ┬À mimo-v2.6-flash
+backend-team
+frontend-team
+game-dev-team
+react-native-team
+regression-team
+
+observed_ids:
+backend-team
+frontend-team
+game-dev-team
+react-native-team
+regression-team
+exit: 0

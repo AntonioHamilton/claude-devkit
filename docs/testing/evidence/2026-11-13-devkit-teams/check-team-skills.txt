@@ -1,0 +1,1 @@
+﻿PASS: 5 teams with roster, handoffs, verification and references in the README/rules.
