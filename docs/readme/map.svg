@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <rect width="100%" height="100%" rx="4" fill="#FFFFFF" stroke="#E3E8ED"/>
+  <defs>
+    <marker id="blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3767A8"/>
+    </marker>
+    <marker id="sand" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#C9A96E"/>
+    </marker>
+  </defs>
+
+  <g fill="#F5F7F9" stroke="#CBD3DB" stroke-width="1">
+    <rect x="30" y="150" width="130" height="60" rx="4"/>
+    <rect x="230" y="130" width="230" height="100" rx="4"/>
+    <rect x="700" y="145" width="150" height="70" rx="4"/>
+    <rect x="560" y="30" width="200" height="60" rx="4"/>
+    <rect x="560" y="300" width="230" height="70" rx="4"/>
+  </g>
+  <rect x="230" y="290" width="230" height="90" rx="4" fill="#FCFAF7" stroke="#E6D5C1" stroke-width="1"/>
+
+  <g text-anchor="middle" font-size="15" font-weight="500" fill="#1B2632">
+    <text x="95" y="185">You</text>
+    <text x="345" y="165">Harness</text>
+    <text x="775" y="175">Your project</text>
+    <text x="660" y="56">RTK</text>
+    <text x="675" y="328">Memory</text>
+    <text x="345" y="322" fill="#5B4630">claude-devkit</text>
+  </g>
+  <g text-anchor="middle" font-size="13" fill="#4A5D72">
+    <text x="345" y="188">Claude Code · OpenCode</text>
+    <text x="345" y="208">Codex · Kimi</text>
+    <text x="775" y="197" font-family="ui-monospace, SFMono-Regular, Consolas, monospace">AGENTS.md + code</text>
+    <text x="660" y="76">shell output, compressed</text>
+    <text x="675" y="350">Obsidian vault or</text>
+    <text x="675" y="366" font-family="ui-monospace, SFMono-Regular, Consolas, monospace">~/.claude/memory</text>
+    <text x="345" y="345" fill="#5B4630">rules · skills · agents</text>
+    <text x="345" y="364" fill="#5B4630">hooks · installer</text>
+  </g>
+
+  <g stroke-width="1.5" fill="none">
+    <line x1="160" y1="180" x2="228" y2="180" stroke="#3767A8" marker-end="url(#blue)"/>
+    <line x1="460" y1="168" x2="698" y2="168" stroke="#3767A8" marker-end="url(#blue)"/>
+    <line x1="698" y1="196" x2="462" y2="196" stroke="#C9A96E" marker-end="url(#sand)"/>
+    <line x1="345" y1="290" x2="345" y2="232" stroke="#3767A8" marker-end="url(#blue)"/>
+    <line x1="460" y1="325" x2="558" y2="325" stroke="#3767A8" marker-end="url(#blue)"/>
+    <line x1="558" y1="350" x2="462" y2="350" stroke="#C9A96E" marker-end="url(#sand)"/>
+    <line x1="560" y1="75" x2="440" y2="128" stroke="#C9A96E" marker-end="url(#sand)"/>
+  </g>
+
+  <g font-size="13" fill="#263444">
+    <text x="194" y="170" text-anchor="middle">asks</text>
+    <text x="580" y="160" text-anchor="middle">edits, runs checks</text>
+    <text x="580" y="214" text-anchor="middle">diff, test results</text>
+    <text x="355" y="266">loaded every session</text>
+    <text x="509" y="318" text-anchor="middle">save</text>
+    <text x="509" y="366" text-anchor="middle">load</text>
+  </g>
+</svg>
