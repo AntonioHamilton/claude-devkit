@@ -59,7 +59,8 @@ Repeat until everything passes or 3 rounds are exceeded (if exceeded: take to th
 Then, the human verification script: the numbered "how you check it" items. Deliver it and **wait** (`AskUserQuestion`: passed / failed, becomes a new item / will not test now, recorded in the summary).
 
 ### 7. Ship
-Final summary (done, out of scope, findings, whether the human verification happened). Ask whether to open a PR (`scripts/open-pr.*`); never push or open a PR without ok. Archive the OpenSpec change with ok. Close with `devkit-memory salvar`: only revealed preferences, decisions that matter beyond the task, and what went wrong. `devkit-memory consolidar` if memory has grown a lot.
+First, `super-readme feature <slug>` on the branch: it updates only this feature's block in the README, and replies `README: no visible change` for refactors, internal fixes, tests and chores. Commit the README with the feature.
+Then, the final summary (done, out of scope, findings, whether the human verification happened). Ask whether to open a PR (`scripts/open-pr.*`); never push or open a PR without ok. Archive the OpenSpec change with ok. Close with `devkit-memory salvar`: only revealed preferences, decisions that matter beyond the task, and what went wrong. `devkit-memory consolidar` if memory has grown a lot.
 
 ## Hard rules
 

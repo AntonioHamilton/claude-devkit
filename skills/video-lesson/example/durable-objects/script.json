@@ -1,0 +1,236 @@
+{
+ "title": "Estado e tarefas longas",
+ "sub": "Durable Objects e workflows duráveis",
+ "lang": "pt",
+ "lines": [
+  {
+   "id": "a1",
+   "who": "narr",
+   "text": "Imagine o seu servidor de notas rodando em Cloudflare Workers."
+  },
+  {
+   "id": "a2",
+   "who": "narr",
+   "text": "Um Worker é uma função que sobe, responde um pedido e some."
+  },
+  {
+   "id": "a3",
+   "who": "narr",
+   "text": "Ele não guarda nada entre um pedido e outro. E podem existir vários rodando ao mesmo tempo, em lugares diferentes.",
+   "concept": true
+  },
+  {
+   "id": "a4",
+   "who": "narr",
+   "text": "Pra maioria das coisas, isso é ótimo. Escala sozinho."
+  },
+  {
+   "id": "a5",
+   "who": "narr",
+   "text": "Mas um agente não é um pedido solto. Ele tem uma conversa, tem estado, e grava notas."
+  },
+  {
+   "id": "b1",
+   "who": "narr",
+   "text": "Agora veja o problema acontecer."
+  },
+  {
+   "id": "b2",
+   "who": "narr",
+   "text": "A nota Pipeline tem três deals."
+  },
+  {
+   "id": "b3",
+   "who": "narr",
+   "text": "O Claude pede pra adicionar a Acme. No mesmo segundo, o Cursor pede pra adicionar a Bolt."
+  },
+  {
+   "id": "b4",
+   "who": "narr",
+   "text": "Dois Workers sobem. Cada um lê a nota: três deals."
+  },
+  {
+   "id": "b5",
+   "who": "narr",
+   "text": "O primeiro grava: três deals mais a Acme."
+  },
+  {
+   "id": "b6",
+   "who": "narr",
+   "text": "O segundo grava em cima: três deals mais a Bolt."
+  },
+  {
+   "id": "b7",
+   "who": "narr",
+   "text": "A Acme sumiu. Ninguém viu erro nenhum.",
+   "concept": true
+  },
+  {
+   "id": "b8",
+   "who": "narr",
+   "text": "Isso é uma condição de corrida. Duas escritas lendo o mesmo estado velho.",
+   "concept": true
+  },
+  {
+   "id": "b9",
+   "who": "narr",
+   "text": "E não adianta pedir pro modelo tomar cuidado. O problema não está no agente. Está em dois processos mexendo no mesmo dado sem coordenação."
+  },
+  {
+   "id": "c1",
+   "who": "narr",
+   "text": "O Durable Object resolve isso de um jeito simples."
+  },
+  {
+   "id": "c2",
+   "who": "narr",
+   "text": "É um objeto com um nome. Por exemplo: a nota Pipeline."
+  },
+  {
+   "id": "c3",
+   "who": "narr",
+   "text": "Existe só uma instância dele no mundo inteiro. Todo pedido com esse nome cai nela."
+  },
+  {
+   "id": "c4",
+   "who": "narr",
+   "text": "E ela guarda o próprio estado, num armazenamento junto dela."
+  },
+  {
+   "id": "c5",
+   "who": "narr",
+   "text": "Mais importante: ela processa um pedido de cada vez.",
+   "concept": true
+  },
+  {
+   "id": "c5b",
+   "who": "narr",
+   "text": "Não tem trava pra esquecer de pegar, nem transação pra configurar. A coordenação vem do próprio desenho: um nome, uma instância, uma fila.",
+   "concept": true
+  },
+  {
+   "id": "c6",
+   "who": "narr",
+   "text": "Vamos repetir a cena."
+  },
+  {
+   "id": "c7",
+   "who": "narr",
+   "text": "Os dois pedidos chegam no mesmo objeto. Eles entram numa fila."
+  },
+  {
+   "id": "c8",
+   "who": "narr",
+   "text": "O primeiro grava a Acme: quatro deals."
+  },
+  {
+   "id": "c9",
+   "who": "narr",
+   "text": "O segundo lê o estado novo e grava a Bolt: cinco deals. Nada se perde.",
+   "concept": true
+  },
+  {
+   "id": "c10",
+   "who": "narr",
+   "text": "Por isso, no meu servidor de notas, quem salva as notas é um Durable Object. Um por chave."
+  },
+  {
+   "id": "c10b",
+   "who": "narr",
+   "text": "E a conversa de um agente segue a mesma ideia: um objeto por conversa, com o histórico guardado nele, sem perder mensagem quando dois pedidos chegam juntos."
+  },
+  {
+   "id": "c11",
+   "who": "narr",
+   "text": "Na AWS não existe um equivalente direto: você monta com Lambda e uma escrita condicional no DynamoDB. No Google, com Cloud Run e Firestore.",
+   "concept": true
+  },
+  {
+   "id": "d1",
+   "who": "narr",
+   "text": "O segundo problema é tempo."
+  },
+  {
+   "id": "d2",
+   "who": "narr",
+   "text": "Indexar as notas pra busca é uma tarefa de dez passos: ler, dividir em pedaços, gerar embeddings, gravar no índice, e assim por diante."
+  },
+  {
+   "id": "d2b",
+   "who": "narr",
+   "text": "Com duas mil notas, isso leva uns seis minutos e custa dinheiro a cada chamada de embedding."
+  },
+  {
+   "id": "d3",
+   "who": "narr",
+   "text": "Ela roda. Passo um, dois, três, até o seis."
+  },
+  {
+   "id": "d4",
+   "who": "narr",
+   "text": "No passo seis, a API de embeddings dá timeout."
+  },
+  {
+   "id": "d5",
+   "who": "narr",
+   "text": "Sem durabilidade, o processo morre. E na próxima vez, recomeça do passo um. Paga de novo pelos embeddings que já tinha feito.",
+   "concept": true
+  },
+  {
+   "id": "d6",
+   "who": "narr",
+   "text": "E pior: metade das notas fica no índice e metade não. A busca passa a responder com dados incompletos, sem avisar ninguém.",
+   "concept": true
+  },
+  {
+   "id": "e1",
+   "who": "narr",
+   "text": "Um workflow durável muda isso."
+  },
+  {
+   "id": "e2",
+   "who": "narr",
+   "text": "Cada passo, ao terminar, grava o resultado."
+  },
+  {
+   "id": "e3",
+   "who": "narr",
+   "text": "Quando o passo seis falha, só ele tenta de novo. Com espera crescente: um segundo, dois, quatro.",
+   "concept": true
+  },
+  {
+   "id": "e4",
+   "who": "narr",
+   "text": "E se o servidor inteiro cair, o workflow volta do passo seis, usando o que os cinco primeiros já gravaram.",
+   "concept": true
+  },
+  {
+   "id": "e5",
+   "who": "narr",
+   "text": "Na Cloudflare, isso é o Workflows. Na AWS, Step Functions. No Google, Workflows também.",
+   "concept": true
+  },
+  {
+   "id": "e6",
+   "who": "narr",
+   "text": "Pra um agente, isso vale muito: uma tarefa longa que falha no meio retoma o passo, não o trabalho inteiro."
+  },
+  {
+   "id": "e6b",
+   "who": "narr",
+   "text": "Por exemplo: o relatório semanal de um fundo. Buscar no CRM, ler quarenta e-mails, resumir, escrever a nota. Se o resumo falhar, o agente não lê os quarenta e-mails de novo.",
+   "concept": true
+  },
+  {
+   "id": "g0",
+   "who": "narr",
+   "text": "Numa frase:"
+  },
+  {
+   "id": "g1",
+   "who": "narr",
+   "text": "um dono pra cada estado, e cada passo guardado.",
+   "concept": true
+  }
+ ]
+}

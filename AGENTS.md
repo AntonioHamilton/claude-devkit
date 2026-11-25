@@ -35,6 +35,7 @@ to organize skills and agents.
 Markdown in English for repository files; replies follow the user's language. Text files in LF.
 Do not overwrite global configuration or install dependencies without authorization.
 Use only existing agents or explicitly declare the fallback per harness.
+Third-party skill copies: record source, commit and license in the skill's `## Origin` section and in the README credits; strip trailing whitespace so `git diff --check` passes, and list that change in Origin.
 Teams are coordination skills (`game-dev-team`, `frontend-team`, `backend-team`, `react-native-team`, `regression-team`); do not create a plugin or agent to represent a team.
 
 ## What not to do

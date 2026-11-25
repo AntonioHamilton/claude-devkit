@@ -252,6 +252,9 @@ For OpenCode, run `opencode debug agents` and confirm that `manager` is listed a
 | `loop-engineering` | external (my-skills) | Loop interview and monitor with verification. |
 | `codemap` | external (my-skills) | Hierarchical map of an unknown repository. Expensive: only on explicit request. |
 | `fact-check` | external (my-skills) | Adversarial fact-check of articles and essays: checks each claim against primary sources, with cheap subagents on headless CLIs. Triggers other agent CLIs (the config default is grok, with a final pass in claude) and may spend paid API: read `skills/fact-check/references/harness-setup.md` before using it. |
+| `lesson` | external ([YudiG12/ganeko-skills](https://github.com/YudiG12/ganeko-skills)) | One self-contained HTML lesson that teaches one technical concept, from the problem to the fix, with diagrams and a quiz. Only on explicit request. |
+| `video-lesson` | external (ganeko-skills) | Narrated, animated ~4 min video of one concept (Remotion + local voice). Needs python, node and ffmpeg; `scripts/setup.sh` installs its dependencies, so ask first. On Windows, run it in WSL. |
+| `super-readme` | internal (style from `lesson`) | Writes the project README as a visual explainer: map, problem, Mermaid diagrams, one block per feature, verified quickstart. Step 7 of the manager updates the block of the shipped feature. |
 | `game-dev-team` | internal (format inspired by Agnthub) | Godot 4 team: scene architecture, GDScript, headless testing and review. The Agnthub Unity example was adapted to the Godot agents. |
 | `frontend-team` | internal | Web UI team: implementation, visual validation, browser flow and review. |
 | `backend-team` | internal | API/database team: contract, migration, auth, integration test and review. |
@@ -333,7 +336,7 @@ Seven steps, in **lean** (default) or **full** mode (real data, auth, payment, m
 | 4 | Approval | One question: plan + regression tests | same |
 | 5 | Implementation | The session itself | `developer` per stage, commit per stage |
 | 6 | Validation | checks, `tester` (if wanted), `goal`, in a loop of up to 3 rounds, and human verification | plus `reviewer` |
-| 7 | Ship | PR with ok, `devkit-memory salvar` | same, archives the change |
+| 7 | Ship | `super-readme feature <slug>` (skipped when nothing visible changed), PR with ok, `devkit-memory salvar` | same, archives the change |
 
 Invariants that must not be broken:
 
@@ -417,6 +420,7 @@ Third-party skills included as verbatim copies, with the origin header in each f
 |---|---|---|
 | `ponytail-review` | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | MIT |
 | `caveman` | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | MIT (the skill; the proxy runtime is BSL-1.1 and is not here) |
+| `lesson`, `video-lesson` | [YudiG12/ganeko-skills](https://github.com/YudiG12/ganeko-skills) (`skills/beta`, commit `9b566b7`) | MIT; the M PLUS fonts in `video-lesson/engine/public/` are SIL OFL. Remotion, installed by `setup.sh`, has its own license (free for individuals and companies up to 3 people) |
 
 External tool only referenced, not redistributed:
 
