@@ -44,3 +44,26 @@ Teams are coordination skills (`game-dev-team`, `frontend-team`, `backend-team`,
 - Do not change models, quotas or permissions of existing agents.
 - Do not push, merge or open a PR.
 - Do not claim a test passed without real evidence.
+
+## Principles
+
+KISS (Keep It Simple):
+
+- Use early returns for readability.
+- Make minimal, targeted fixes; do not refactor unrelated code.
+- Do not over-engineer; do not add features beyond what was asked.
+- Prefer simple solutions over clever ones.
+
+DRY (Don't Repeat Yourself):
+
+- Clean up dead code when you encounter it.
+- Extract constants: no magic numbers or repeated strings.
+- Eliminate duplication: extract shared logic to hooks or utilities.
+- Reuse existing utilities and hooks before creating new ones.
+
+SOLID:
+
+- Single responsibility: each component/hook does one thing.
+- Open/closed: extend behavior via composition, not modification.
+- Dependency inversion: depend on abstractions (hooks, services), not implementations.
+- Backwards compatibility: maintain it unless explicitly told otherwise.
